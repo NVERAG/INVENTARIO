@@ -165,15 +165,6 @@
     color: white;
     box-shadow: 0 2px 6px rgba(22,100,192,0.25);
   }
-  .tab-familia .badge {
-    display: inline-block;
-    background: rgba(0,0,0,0.1);
-    border-radius: 20px;
-    font-size: 8px;
-    padding: 0 6px;
-    margin-left: 4px;
-  }
-  .tab-familia.active .badge { background: rgba(255,255,255,0.2); }
 
   label {
     display: block;
@@ -203,37 +194,6 @@
 
   .field { margin-bottom: 12px; }
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-  .chips-tallas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-  .chip-talla {
-    padding: 3px 10px;
-    border-radius: 30px;
-    border: 1.5px solid var(--borde);
-    background: #f8fafc;
-    font-size: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-    color: var(--texto-gris);
-  }
-  .chip-talla.active {
-    background: var(--azul);
-    border-color: var(--azul);
-    color: white;
-  }
-  .chip-talla.stock-bajo {
-    border-color: var(--rojo);
-    background: #fff5f5;
-  }
-  .chip-talla.stock-bajo.active {
-    background: var(--rojo);
-    border-color: var(--rojo);
-    color: white;
-  }
 
   .btn-primario {
     background: var(--azul);
@@ -301,6 +261,90 @@
   .dropdown-item:last-child { border-bottom: none; }
   .dropdown-item:hover { background: rgba(22,100,192,0.06); }
   .dropdown-item .stock-info { font-size: 10px; color: var(--texto-gris); }
+
+  /* ===== SELECTOR DE TALLAS - BOTONES CUADRADOS ===== */
+  .selector-tallas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .selector-tallas .talla-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 56px;
+    padding: 8px 4px;
+    border-radius: 10px;
+    border: 2px solid var(--borde);
+    background: white;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--texto-oscuro);
+    line-height: 1.2;
+  }
+  .selector-tallas .talla-item .talla-nombre {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .selector-tallas .talla-item .talla-stock {
+    display: block;
+    font-size: 9px;
+    color: var(--texto-gris);
+    font-weight: 400;
+  }
+  .selector-tallas .talla-item.sin-stock {
+    opacity: 0.35;
+    cursor: not-allowed;
+    background: #f5f5f5;
+    border-color: #ddd;
+  }
+  .selector-tallas .talla-item.sin-stock .talla-stock {
+    color: var(--rojo);
+  }
+  .selector-tallas .talla-item.con-stock {
+    cursor: pointer;
+  }
+  .selector-tallas .talla-item.con-stock:hover {
+    border-color: var(--azul);
+    background: #f0f5ff;
+    transform: scale(1.02);
+  }
+  .selector-tallas .talla-item.active {
+    border-color: var(--azul);
+    background: var(--azul);
+    color: white;
+  }
+  .selector-tallas .talla-item.active .talla-stock {
+    color: rgba(255,255,255,0.8);
+  }
+  .selector-tallas .talla-item.stock-bajo {
+    border-color: var(--naranja);
+  }
+  .selector-tallas .talla-item.stock-bajo.active {
+    background: var(--naranja);
+    border-color: var(--naranja);
+  }
+
+  .producto-seleccionado {
+    background: #f0f5ff;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--azul-claro);
+    display: none;
+  }
+  .producto-seleccionado .prod-subtitulo {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--texto-gris);
+    margin-bottom: 2px;
+  }
 
   .ticket {
     background: #fafcfd;
@@ -479,7 +523,26 @@
     text-align: center;
     background: #fafcff;
   }
-  .foto-upload input[type="file"] { font-size: 11px; margin-bottom: 8px; }
+  .foto-upload input[type="file"] { 
+    font-size: 13px; 
+    margin-bottom: 8px;
+    padding: 6px;
+    cursor: pointer;
+  }
+  .foto-upload input[type="file"]::-webkit-file-upload-button {
+    background: var(--azul);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  .foto-upload input[type="file"]::-webkit-file-upload-button:hover {
+    background: var(--azul-claro);
+  }
   .foto-preview {
     display: flex;
     gap: 10px;
@@ -514,6 +577,22 @@
     font-size: 10px;
   }
 
+  .btn-camara {
+    background: var(--verde);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-camara:hover { opacity: 0.85; }
+
   footer {
     text-align: center;
     color: var(--texto-gris);
@@ -530,6 +609,8 @@
     .section { margin: 8px 10px; padding: 12px; }
     .ticket { font-size: 10px; }
     .btn-sesion { max-width: 100px; font-size: 8px; padding: 3px 8px; }
+    .foto-upload input[type="file"] { font-size: 12px; }
+    .selector-tallas .talla-item { min-width: 48px; padding: 6px 2px; font-size: 12px; }
   }
 
   ::-webkit-scrollbar { width: 4px; }
@@ -586,11 +667,11 @@
   <div class="field">
     <label>📂 Familia de productos</label>
     <div class="tabs-familias" id="tabs-familias">
-      <div class="tab-familia active" data-familia="todas" onclick="seleccionarFamilia('todas')">📦 Todas <span class="badge" id="badge-todas">0</span></div>
-      <div class="tab-familia" data-familia="maquinarias" onclick="seleccionarFamilia('maquinarias')">🔧 Maquinarias <span class="badge" id="badge-maquinarias">0</span></div>
-      <div class="tab-familia" data-familia="epp_basico" onclick="seleccionarFamilia('epp_basico')">🛡️ EPP Básico <span class="badge" id="badge-epp_basico">0</span></div>
-      <div class="tab-familia" data-familia="epp_especial" onclick="seleccionarFamilia('epp_especial')">🧥 EPP Especial <span class="badge" id="badge-epp_especial">0</span></div>
-      <div class="tab-familia" data-familia="epp_climatico" onclick="seleccionarFamilia('epp_climatico')">🌧️ EPP Climático <span class="badge" id="badge-epp_climatico">0</span></div>
+      <div class="tab-familia active" data-familia="epp_basico" onclick="seleccionarFamilia('epp_basico')">🛡️ EPP Básico</div>
+      <div class="tab-familia" data-familia="epp_climatico" onclick="seleccionarFamilia('epp_climatico')">🌧️ EPP Climático</div>
+      <div class="tab-familia" data-familia="epp_especial" onclick="seleccionarFamilia('epp_especial')">🧥 EPP Especial</div>
+      <div class="tab-familia" data-familia="maquinarias" onclick="seleccionarFamilia('maquinarias')">🔧 Maquinarias</div>
+      <div class="tab-familia" data-familia="todas" onclick="seleccionarFamilia('todas')">📦 Todas</div>
     </div>
   </div>
 
@@ -603,18 +684,13 @@
     </div>
   </div>
 
-  <!-- Tallas -->
-  <div class="field" id="campo-tallas" style="display:none;">
-    <label class="required">Talla</label>
-    <div class="chips-tallas" id="chips-tallas">
-      <div class="chip-talla" data-talla="S" onclick="seleccionarTalla('S')">S</div>
-      <div class="chip-talla" data-talla="M" onclick="seleccionarTalla('M')">M</div>
-      <div class="chip-talla" data-talla="L" onclick="seleccionarTalla('L')">L</div>
-      <div class="chip-talla" data-talla="XL" onclick="seleccionarTalla('XL')">XL</div>
-      <div class="chip-talla" data-talla="XXL" onclick="seleccionarTalla('XXL')">XXL</div>
-      <div class="chip-talla" data-talla="XXXL" onclick="seleccionarTalla('XXXL')">XXXL</div>
+  <!-- Producto seleccionado - SOLO MUESTRA TALLAS -->
+  <div id="producto-seleccionado-container" class="producto-seleccionado">
+    <div id="selector-tallas-container" style="display:none;">
+      <div class="prod-subtitulo">📏 Selecciona una talla:</div>
+      <div class="selector-tallas" id="selector-tallas"></div>
+      <div id="talla-seleccionada-info" style="font-size:10px; color:var(--texto-gris); margin-top:6px;"></div>
     </div>
-    <div id="stock-talla-info" style="font-size:10px; color:var(--texto-gris); margin-top:4px;"></div>
   </div>
 
   <div class="row-2">
@@ -642,9 +718,13 @@
   <div class="field">
     <label>📷 Fotografía (opcional)</label>
     <div class="foto-upload">
-      <input type="file" id="foto-input" accept="image/*" multiple onchange="previewFotos()">
+      <input type="file" id="foto-input" accept="image/*" capture="environment" multiple onchange="previewFotos()">
+      <div style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+        <button type="button" class="btn-camara" onclick="abrirCamara()">📸 Tomar foto con cámara</button>
+        <button type="button" class="btn-camara" style="background:var(--azul);" onclick="abrirGaleria()">🖼️ Elegir de galería</button>
+      </div>
       <div id="foto-preview" class="foto-preview"></div>
-      <div id="foto-placeholder" style="font-size:10px; color:var(--texto-gris);">Subir foto(s) del producto o entrega</div>
+      <div id="foto-placeholder" style="font-size:10px; color:var(--texto-gris); margin-top:6px;">Subir foto(s) del producto o entrega</div>
     </div>
   </div>
 
@@ -652,12 +732,6 @@
     <button class="btn-primario" id="btn-registrar" onclick="registrarSalida()">✅ Registrar Salida</button>
   </div>
   <button class="btn-secundario" onclick="mostrarComprobanteUltima()" style="margin-top:6px;">📋 Ver último comprobante</button>
-</div>
-
-<!-- STOCK CRÍTICO -->
-<div class="section">
-  <div class="section-label">⚠️ Stock crítico</div>
-  <div id="stock-critico"></div>
 </div>
 
 <footer>Los datos se guardan localmente · Municipalidad de Las Condes · GRRD</footer>
@@ -833,68 +907,102 @@ function actualizarEstadoSesion(autenticado) {
 }
 
 // ==================== CONFIGURACIÓN DE PRODUCTOS ====================
-const TALLAS = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+const TALLAS_BOTIN = ['40', '41', '42', '43', '44', '45'];
+const TALLAS_ZAPATO = ['40', '41', '42', '43', '44', '45'];
+
+// FORZAR RECARGA DE DATOS - Cambia la clave para regenerar
+const STORAGE_KEY = 'inv_items_salidas_v5';
 
 const FAMILIAS = {
-  maquinarias: {
-    label: 'Maquinarias',
-    icono: '🔧',
-    productos: [
-      'Motobomba de Agua', 'Bomba Periférica', 'Bomba Sumergible', 'Bomba Pozo Profundo',
-      'Generador Eléctrico', 'Esmeril Angular', 'Taladro Percutor', 'Martillo Demoledor',
-      'Sierra Circular', 'Soldadora Inverter', 'Compresor de Aire', 'Rotomartillo'
-    ]
-  },
   epp_basico: {
     label: 'EPP Básico',
     icono: '🛡️',
-    tieneTalla: true,
+    orden: 0,
     productos: [
-      'Casco de Seguridad', 'Guante de Seguridad', 'Bota de Seguridad', 'Zapato de Seguridad',
-      'Botín de Seguridad', 'Lentes de Seguridad', 'Antiparras', 'Chaleco Geólogo'
-    ]
-  },
-  epp_especial: {
-    label: 'EPP Especial',
-    icono: '🧥',
-    tieneTalla: true,
-    productos: [
-      'Parka Térmica', 'Overol de Trabajo', 'Chaqueta Softshell', 'Chaqueta Polar',
-      'Pantalón de Trabajo', 'Camisa de Trabajo', 'Polera Térmica', 'Ropa Ignífuga'
+      { nombre: 'Casco de Seguridad', tallas: null },
+      { nombre: 'Guante de Seguridad', tallas: null },
+      { nombre: 'Botín de Seguridad', tallas: TALLAS_BOTIN },
+      { nombre: 'Zapato de Seguridad', tallas: TALLAS_ZAPATO },
+      { nombre: 'Lentes de Seguridad', tallas: null },
+      { nombre: 'Antiparras', tallas: null },
+      { nombre: 'Protector Auditivo', tallas: null }
     ]
   },
   epp_climatico: {
     label: 'EPP Climático',
     icono: '🌧️',
-    tieneTalla: true,
+    orden: 1,
     productos: [
-      'Capa de Agua', 'Traje de Agua', 'Pantalón de Agua', 'Cubrebotas', 'Jardinera',
-      'Chaqueta Impermeable', 'Traje de Lluvia'
+      { nombre: 'Bota de Seguridad', tallas: TALLAS_BOTIN },
+      { nombre: 'Capa de Agua', tallas: null },
+      { nombre: 'Traje de Agua', tallas: null },
+      { nombre: 'Pantalón de Agua', tallas: null },
+      { nombre: 'Cubrebotas', tallas: null },
+      { nombre: 'Jardinera', tallas: null },
+      { nombre: 'Chaqueta Impermeable', tallas: null },
+      { nombre: 'Traje de Lluvia', tallas: null }
+    ]
+  },
+  epp_especial: {
+    label: 'EPP Especial',
+    icono: '🧥',
+    orden: 2,
+    productos: [
+      { nombre: 'Parka Térmica', tallas: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'] },
+      { nombre: 'Overol de Trabajo', tallas: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'] },
+      { nombre: 'Chaqueta Softshell', tallas: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'] },
+      { nombre: 'Chaqueta Polar', tallas: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'] },
+      { nombre: 'Pantalón de Trabajo', tallas: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'] },
+      { nombre: 'Camisa de Trabajo', tallas: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'] },
+      { nombre: 'Polera Térmica', tallas: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'] },
+      { nombre: 'Ropa Ignífuga', tallas: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'] },
+      { nombre: 'Malla de Seguridad', tallas: null }
+    ]
+  },
+  maquinarias: {
+    label: 'Maquinarias',
+    icono: '🔧',
+    orden: 3,
+    productos: [
+      { nombre: 'Motobomba de Agua', tallas: null },
+      { nombre: 'Bomba Periférica', tallas: null },
+      { nombre: 'Bomba Sumergible', tallas: null },
+      { nombre: 'Bomba Pozo Profundo', tallas: null },
+      { nombre: 'Generador Eléctrico', tallas: null },
+      { nombre: 'Esmeril Angular', tallas: null },
+      { nombre: 'Taladro Percutor', tallas: null },
+      { nombre: 'Martillo Demoledor', tallas: null },
+      { nombre: 'Sierra Circular', tallas: null },
+      { nombre: 'Soldadora Inverter', tallas: null },
+      { nombre: 'Compresor de Aire', tallas: null },
+      { nombre: 'Rotomartillo', tallas: null }
     ]
   }
 };
 
 // ==================== DATOS ====================
-let items = JSON.parse(localStorage.getItem('inv_items_salidas_v2') || 'null');
+let items = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
 
 function generarItemsIniciales() {
   const nuevos = [];
   let idCounter = 0;
+  
   Object.entries(FAMILIAS).forEach(([familiaKey, familia]) => {
-    familia.productos.forEach(nombre => {
-      const tieneTalla = familia.tieneTalla || false;
+    familia.productos.forEach(prod => {
+      const tieneTalla = prod.tallas && prod.tallas.length > 0;
+      
       if (tieneTalla) {
-        TALLAS.forEach(talla => {
+        prod.tallas.forEach(talla => {
           nuevos.push({
             id: 'i' + (++idCounter).toString().padStart(4, '0'),
-            nombre: nombre,
+            nombre: prod.nombre,
             familia: familiaKey,
             categoria: familia.label,
             tieneTalla: true,
             talla: talla,
             codigo: '',
             unidad: 'Unidad',
-            stock: Math.floor(Math.random() * 15) + 2,
+            stock: Math.floor(Math.random() * 8) + 2,
             stockMin: 2,
             ubicacion: 'Bodega GRRD',
             estado: 'Operativo',
@@ -905,7 +1013,7 @@ function generarItemsIniciales() {
       } else {
         nuevos.push({
           id: 'i' + (++idCounter).toString().padStart(4, '0'),
-          nombre: nombre,
+          nombre: prod.nombre,
           familia: familiaKey,
           categoria: familia.label,
           tieneTalla: false,
@@ -925,16 +1033,15 @@ function generarItemsIniciales() {
   return nuevos;
 }
 
-if (!items || items.length === 0) {
-  items = generarItemsIniciales();
-  localStorage.setItem('inv_items_salidas_v2', JSON.stringify(items));
-}
+// SIEMPRE regenerar los items para asegurar que estén todos
+items = generarItemsIniciales();
+localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 
-let salidas = JSON.parse(localStorage.getItem('salidas_registradas_v2') || '[]');
+let salidas = JSON.parse(localStorage.getItem('salidas_registradas_v5') || '[]');
 let productoSeleccionadoId = null;
 let tallaSeleccionada = null;
 let ultimoComprobante = null;
-let familiaSeleccionada = 'todas';
+let familiaSeleccionada = 'epp_basico';
 
 // ==================== FUNCIONES BASE ====================
 function generarId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 7); }
@@ -958,8 +1065,8 @@ function esHoy(fechaStr) {
 }
 
 function guardarStorage() {
-  localStorage.setItem('inv_items_salidas_v2', JSON.stringify(items));
-  localStorage.setItem('salidas_registradas_v2', JSON.stringify(salidas));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  localStorage.setItem('salidas_registradas_v5', JSON.stringify(salidas));
 }
 
 function mostrarToast(msg) {
@@ -977,66 +1084,101 @@ function seleccionarFamilia(familia) {
     tab.classList.toggle('active', tab.dataset.familia === familia);
   });
   poblarDropdownProductos();
+  limpiarSeleccionProducto();
+}
+
+// ==================== SELECCIÓN DE PRODUCTO ====================
+function limpiarSeleccionProducto() {
   document.getElementById('prod-trigger').value = '';
   productoSeleccionadoId = null;
-  document.getElementById('salida-unidad').value = '';
-  ocultarTallas();
-}
-
-function actualizarBadges() {
-  const total = items.length;
-  document.getElementById('badge-todas').textContent = total;
-  Object.keys(FAMILIAS).forEach(key => {
-    const count = items.filter(i => i.familia === key).length;
-    document.getElementById('badge-' + key).textContent = count;
-  });
-}
-
-// ==================== TALLAS ====================
-function mostrarTallas(producto) {
-  const campo = document.getElementById('campo-tallas');
-  if (producto && producto.tieneTalla) {
-    campo.style.display = 'block';
-    const tallasConStock = TALLAS.map(t => {
-      const item = items.find(i => i.nombre === producto.nombre && i.talla === t && i.familia === producto.familia);
-      return { talla: t, stock: item ? item.stock : 0 };
-    });
-    const chips = document.querySelectorAll('.chip-talla');
-    chips.forEach(chip => {
-      const t = chip.dataset.talla;
-      const info = tallasConStock.find(s => s.talla === t);
-      const stock = info ? info.stock : 0;
-      chip.classList.toggle('stock-bajo', stock <= 2 && stock > 0);
-      chip.classList.remove('active');
-      chip.textContent = `${t} (${stock})`;
-      chip.dataset.stock = stock;
-      chip.onclick = () => seleccionarTalla(t);
-    });
-    document.getElementById('stock-talla-info').textContent = 'Seleccione una talla · Stock disponible entre paréntesis';
-    tallaSeleccionada = null;
-  } else {
-    campo.style.display = 'none';
-    tallaSeleccionada = null;
-  }
-}
-
-function ocultarTallas() {
-  document.getElementById('campo-tallas').style.display = 'none';
   tallaSeleccionada = null;
+  document.getElementById('salida-unidad').value = '';
+  document.getElementById('salida-cantidad').value = '';
+  document.getElementById('salida-cantidad').max = '';
+  
+  const container = document.getElementById('producto-seleccionado-container');
+  container.style.display = 'none';
+  document.getElementById('selector-tallas-container').style.display = 'none';
+  document.getElementById('selector-tallas').innerHTML = '';
+  document.getElementById('talla-seleccionada-info').textContent = '';
 }
 
-function seleccionarTalla(talla) {
-  tallaSeleccionada = talla;
-  document.querySelectorAll('.chip-talla').forEach(c => c.classList.toggle('active', c.dataset.talla === talla));
-
-  const producto = items.find(i => i.id === productoSeleccionadoId);
-  if (producto) {
-    const itemTalla = items.find(i => i.nombre === producto.nombre && i.talla === talla && i.familia === producto.familia);
-    if (itemTalla) {
-      document.getElementById('salida-cantidad').max = itemTalla.stock;
-      document.getElementById('stock-talla-info').textContent = `Stock disponible para talla ${talla}: ${itemTalla.stock} ${itemTalla.unidad}(s)`;
+function mostrarProductoSeleccionado(producto) {
+  const container = document.getElementById('producto-seleccionado-container');
+  const selectorContainer = document.getElementById('selector-tallas-container');
+  const selector = document.getElementById('selector-tallas');
+  
+  container.style.display = 'block';
+  
+  // Calcular stock total
+  const itemsProducto = items.filter(i => i.nombre === producto.nombre && i.familia === producto.familia);
+  
+  // Verificar si tiene tallas
+  const tieneTallas = itemsProducto.some(i => i.tieneTalla);
+  
+  if (tieneTallas && itemsProducto.length > 0) {
+    selectorContainer.style.display = 'block';
+    selector.innerHTML = '';
+    
+    // Ordenar tallas
+    const tallasOrdenadas = itemsProducto.map(i => i.talla).sort((a, b) => {
+      const aNum = parseFloat(a);
+      const bNum = parseFloat(b);
+      if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+      return a.localeCompare(b);
+    });
+    
+    tallasOrdenadas.forEach(talla => {
+      const item = itemsProducto.find(i => i.talla === talla);
+      const div = document.createElement('div');
+      div.className = 'talla-item';
+      div.dataset.talla = talla;
+      
+      if (item && item.stock > 0) {
+        div.classList.add('con-stock');
+        if (item.stock <= item.stockMin) {
+          div.classList.add('stock-bajo');
+        }
+        div.innerHTML = `<span class="talla-nombre">${talla}</span><span class="talla-stock">${item.stock} disp.</span>`;
+        div.onclick = () => seleccionarTallaProducto(talla, item);
+      } else {
+        div.classList.add('sin-stock');
+        div.innerHTML = `<span class="talla-nombre">${talla}</span><span class="talla-stock">agotado</span>`;
+      }
+      selector.appendChild(div);
+    });
+    
+    tallaSeleccionada = null;
+    document.getElementById('talla-seleccionada-info').textContent = '👆 Selecciona una talla disponible';
+    document.getElementById('salida-cantidad').value = '';
+    document.getElementById('salida-cantidad').max = '';
+    
+  } else {
+    // Sin tallas - solo mostrar producto
+    selectorContainer.style.display = 'none';
+    tallaSeleccionada = null;
+    const itemUnico = itemsProducto[0];
+    if (itemUnico) {
+      document.getElementById('salida-cantidad').max = itemUnico.stock;
+      document.getElementById('salida-unidad').value = itemUnico.unidad || 'Unidad';
+      document.getElementById('talla-seleccionada-info').textContent = `Stock disponible: ${itemUnico.stock} unidades`;
     }
   }
+}
+
+function seleccionarTallaProducto(talla, item) {
+  tallaSeleccionada = talla;
+  
+  // Actualizar UI de tallas
+  document.querySelectorAll('.talla-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.talla === talla);
+  });
+  
+  document.getElementById('talla-seleccionada-info').textContent = 
+    `✅ Talla ${talla} seleccionada · Stock: ${item.stock} ${item.unidad}(s)`;
+  document.getElementById('salida-cantidad').max = item.stock;
+  document.getElementById('salida-cantidad').value = '';
+  document.getElementById('salida-unidad').value = item.unidad || 'Unidad';
 }
 
 // ==================== DROPDOWN PRODUCTOS ====================
@@ -1060,6 +1202,7 @@ function poblarDropdownProductos() {
     return;
   }
 
+  // Agrupar por nombre
   const agrupados = {};
   productosFiltrados.forEach(item => {
     const key = item.nombre + '|' + item.familia;
@@ -1067,35 +1210,24 @@ function poblarDropdownProductos() {
     agrupados[key].push(item);
   });
 
-  Object.entries(agrupados).forEach(([key, grupo]) => {
+  const sortedKeys = Object.keys(agrupados).sort();
+  
+  sortedKeys.forEach(key => {
+    const grupo = agrupados[key];
     const primerItem = grupo[0];
-    const tieneTalla = primerItem.tieneTalla;
     const div = document.createElement('div');
     div.className = 'dropdown-item';
     const icono = FAMILIAS[primerItem.familia]?.icono || '📦';
     let stockTotal = grupo.reduce((a, i) => a + i.stock, 0);
-    let infoTallas = '';
-    if (tieneTalla) {
-      const tallasInfo = grupo.map(i => `${i.talla}:${i.stock}`).join(' ');
-      infoTallas = ` · Tallas: ${tallasInfo}`;
-    }
-    div.innerHTML = `${icono} ${primerItem.nombre} <span class="stock-info">(total: ${stockTotal}${infoTallas})</span>`;
+    
+    div.innerHTML = `${icono} ${primerItem.nombre} <span class="stock-info">(stock: ${stockTotal})</span>`;
     div.onclick = function() {
       input.value = primerItem.nombre;
       productoSeleccionadoId = primerItem.id;
-      document.getElementById('salida-unidad').value = primerItem.unidad || 'Unidad';
       list.style.display = 'none';
-
-      if (tieneTalla) {
-        mostrarTallas(primerItem);
-        const conStock = grupo.filter(i => i.stock > 0);
-        if (conStock.length > 0) {
-          seleccionarTalla(conStock[0].talla);
-        }
-      } else {
-        ocultarTallas();
-        document.getElementById('salida-cantidad').max = primerItem.stock;
-      }
+      
+      // Mostrar producto seleccionado con tallas
+      mostrarProductoSeleccionado(primerItem);
     };
     list.appendChild(div);
   });
@@ -1107,6 +1239,21 @@ function poblarDropdownProductos() {
 }
 
 // ==================== FOTOS ====================
+function abrirCamara() {
+  const input = document.getElementById('foto-input');
+  input.setAttribute('capture', 'environment');
+  input.click();
+}
+
+function abrirGaleria() {
+  const input = document.getElementById('foto-input');
+  input.removeAttribute('capture');
+  input.click();
+  setTimeout(() => {
+    input.setAttribute('capture', 'environment');
+  }, 100);
+}
+
 function previewFotos() {
   const input = document.getElementById('foto-input');
   const preview = document.getElementById('foto-preview');
@@ -1190,7 +1337,11 @@ async function registrarSalida() {
   let productoStock = null;
   let tallaUsada = null;
 
-  if (productoBase.tieneTalla) {
+  // Verificar si el producto tiene tallas
+  const itemsProducto = items.filter(i => i.nombre === productoBase.nombre && i.familia === productoBase.familia);
+  const tieneTallas = itemsProducto.some(i => i.tieneTalla);
+
+  if (tieneTallas) {
     if (!tallaSeleccionada) {
       mostrarToast('❌ Seleccione una talla');
       return;
@@ -1211,11 +1362,17 @@ async function registrarSalida() {
     }
     productoStock.stock -= cantidad;
   } else {
-    if (cantidad > productoBase.stock) {
-      mostrarToast(`❌ Stock insuficiente. Disponible: ${productoBase.stock}`);
+    // Sin tallas
+    productoStock = itemsProducto[0];
+    if (!productoStock) {
+      mostrarToast('❌ Producto no encontrado');
       return;
     }
-    productoBase.stock -= cantidad;
+    if (cantidad > productoStock.stock) {
+      mostrarToast(`❌ Stock insuficiente. Disponible: ${productoStock.stock}`);
+      return;
+    }
+    productoStock.stock -= cantidad;
   }
 
   // Procesar fotos
@@ -1229,13 +1386,13 @@ async function registrarSalida() {
 
   const salida = {
     id: generarId(),
-    productoId: productoBase.id,
+    productoId: productoStock.id,
     productoNombre: productoBase.nombre,
     talla: tallaUsada,
     categoria: productoBase.categoria,
     familia: productoBase.familia,
     cantidad,
-    unidad: productoBase.unidad || 'Unidad',
+    unidad: productoStock.unidad || 'Unidad',
     destino,
     observacion: obs,
     responsable: usuarioAutenticado ? usuarioAutenticado.username : 'Personal GRRD',
@@ -1249,14 +1406,9 @@ async function registrarSalida() {
   guardarStorage();
 
   // Limpiar campos
-  document.getElementById('salida-cantidad').value = '';
+  limpiarSeleccionProducto();
   document.getElementById('salida-destino').value = '';
   document.getElementById('salida-obs').value = '';
-  document.getElementById('prod-trigger').value = '';
-  productoSeleccionadoId = null;
-  document.getElementById('salida-unidad').value = '';
-  ocultarTallas();
-  tallaSeleccionada = null;
   document.getElementById('foto-input').value = '';
   document.getElementById('foto-preview').innerHTML = '';
   document.getElementById('foto-placeholder').style.display = 'block';
@@ -1264,7 +1416,6 @@ async function registrarSalida() {
   mostrarToast(`✅ Salida registrada: ${cantidad} ${salida.unidad}(s) de ${productoBase.nombre}${tallaUsada ? ' (talla ' + tallaUsada + ')' : ''}`);
 
   actualizarDashboard();
-  actualizarBadges();
   poblarDropdownProductos();
   mostrarComprobante(ultimoComprobante);
 }
@@ -1359,22 +1510,32 @@ function imprimirComprobante() {
 
 function descargarPDFComprobante() {
   if (!ultimoComprobante) { mostrarToast('❌ No hay comprobante'); return; }
+  
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: [80, 120], orientation: 'portrait' });
   const s = ultimoComprobante;
   const num = String(salidas.indexOf(s) + 1).padStart(4, '0');
-
+  
+  const totalFotos = (s.fotos && s.fotos.length) || 0;
+  const paginasFotos = Math.ceil(totalFotos / 2);
+  const totalPaginas = 1 + paginasFotos;
+  
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 15;
+  
+  // ========== PÁGINA 1: COMPROBANTE ==========
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
-  doc.text('MUNICIPALIDAD DE LAS CONDES', 40, 10, { align: 'center' });
+  doc.text('MUNICIPALIDAD DE LAS CONDES', pageW/2, 15, { align: 'center' });
   doc.setFontSize(6);
-  doc.text('Depto. Gestión de Riesgos y Desastres', 40, 14, { align: 'center' });
+  doc.text('Depto. Gestión de Riesgos y Desastres', pageW/2, 20, { align: 'center' });
   doc.setFontSize(8);
-  doc.text('COMPROBANTE DE SALIDA N° ' + num, 40, 20, { align: 'center' });
+  doc.text('COMPROBANTE DE SALIDA N° ' + num, pageW/2, 28, { align: 'center' });
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  let y = 28;
+  doc.setFontSize(8);
+  let y = 38;
   const lines = [
     ['Fecha', s.fecha],
     ['Producto', s.productoNombre + (s.talla ? ' (' + s.talla + ')' : '')],
@@ -1386,36 +1547,73 @@ function descargarPDFComprobante() {
 
   lines.forEach(([label, value]) => {
     doc.setFont('helvetica', 'bold');
-    doc.text(label + ':', 8, y);
+    doc.text(label + ':', margin, y);
     doc.setFont('helvetica', 'normal');
-    const v = value.length > 25 ? value.substring(0, 24) + '…' : value;
-    doc.text(v, 35, y);
-    y += 6;
+    const v = value.length > 40 ? value.substring(0, 39) + '…' : value;
+    doc.text(v, margin + 35, y);
+    y += 7;
   });
 
-  if (s.fotos && s.fotos.length > 0) {
-    y += 2;
-    doc.setFontSize(6);
-    doc.text(`📷 ${s.fotos.length} foto(s) adjunta(s)`, 40, y, { align: 'center' });
-    y += 4;
+  y += 4;
+  doc.line(margin, y, pageW - margin, y);
+  y += 5;
+  doc.setFontSize(7);
+  doc.text('Entregado por', margin + 20, y);
+  doc.text('Recibido por', margin + 80, y);
+  y += 5;
+  doc.line(margin + 10, y, margin + 45, y);
+  doc.line(margin + 70, y, margin + 105, y);
+
+  y += 8;
+  doc.setFontSize(6);
+  doc.text('Este comprobante es de carácter informativo', pageW/2, y, { align: 'center' });
+  
+  if (totalFotos > 0) {
+    doc.setFontSize(7);
+    doc.text(`📷 ${totalFotos} foto(s) adjunta(s) en las siguientes páginas`, pageW/2, y + 6, { align: 'center' });
   }
 
-  y += 4;
-  doc.line(8, y, 72, y);
-  y += 3;
-  doc.setFontSize(6);
-  doc.text('Entregado por', 20, y);
-  doc.text('Recibido por', 50, y);
-  y += 4;
-  doc.line(12, y, 30, y);
-  doc.line(42, y, 60, y);
-
-  y += 6;
-  doc.setFontSize(5);
-  doc.text('Este comprobante es de carácter informativo', 40, y, { align: 'center' });
+  // ========== PÁGINAS DE FOTOS ==========
+  if (totalFotos > 0) {
+    let fotoIndex = 0;
+    let paginaActual = 1;
+    
+    while (fotoIndex < totalFotos) {
+      doc.addPage();
+      paginaActual++;
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(22, 100, 192);
+      doc.text(`REGISTRO FOTOGRÁFICO - Pág. ${paginaActual}/${totalPaginas}`, pageW/2, 15, { align: 'center' });
+      
+      const fotosEnPagina = Math.min(2, totalFotos - fotoIndex);
+      const anchoFoto = (pageW - margin * 3) / 2;
+      const altoFoto = anchoFoto * 0.75;
+      const yFoto = 30;
+      
+      for (let i = 0; i < fotosEnPagina; i++) {
+        try {
+          const fotoData = s.fotos[fotoIndex + i];
+          const xFoto = margin + i * (anchoFoto + margin);
+          
+          doc.addImage(fotoData, 'JPEG', xFoto, yFoto, anchoFoto, altoFoto);
+          
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          doc.setTextColor(80, 80, 80);
+          doc.text(`Figura ${fotoIndex + i + 1}`, xFoto + anchoFoto/2, yFoto + altoFoto + 5, { align: 'center' });
+        } catch(e) {
+          console.error('Error al agregar foto:', e);
+        }
+      }
+      
+      fotoIndex += fotosEnPagina;
+    }
+  }
 
   doc.save(`Comprobante_Salida_${s.id}.pdf`);
-  mostrarToast('✅ PDF descargado');
+  mostrarToast('✅ PDF con fotos descargado');
 }
 
 // ==================== DASHBOARD ====================
@@ -1426,29 +1624,15 @@ function actualizarDashboard() {
 
   const productosHoy = new Set(hoy.map(s => s.productoId));
   document.getElementById('res-productos-unicos').textContent = productosHoy.size;
-
-  // Stock crítico
-  const criticos = items.filter(i => i.stock <= i.stockMin).slice(0, 5);
-  const critContainer = document.getElementById('stock-critico');
-  if (criticos.length === 0) {
-    critContainer.innerHTML = '<div class="empty-state">✅ Todos los productos con stock adecuado</div>';
-  } else {
-    critContainer.innerHTML = criticos.map(i => `
-      <div class="salida-item" style="border-color:var(--rojo);">
-        <div class="s-icono">⚠️</div>
-        <div class="s-info">
-          <div class="s-nombre" style="color:var(--rojo);">${i.nombre}${i.talla ? ' (' + i.talla + ')' : ''}</div>
-          <div class="s-meta">Stock: ${i.stock} ${i.unidad}(s) · Mínimo: ${i.stockMin}</div>
-        </div>
-        <div class="s-cantidad" style="color:var(--rojo);">${i.stock}</div>
-      </div>
-    `).join('');
-  }
 }
 
 // ==================== INICIALIZACIÓN ====================
 document.addEventListener('DOMContentLoaded', function() {
-  actualizarBadges();
+  // Seleccionar pestaña EPP Basico por defecto
+  document.querySelectorAll('.tab-familia').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.familia === 'epp_basico');
+  });
+  
   poblarDropdownProductos();
   actualizarDashboard();
   verificarSesion();
