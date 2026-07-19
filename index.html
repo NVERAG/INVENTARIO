@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+<title>Salida de Productos · GRRD · Municipalidad de Las Condes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --azul: #1664c0;
+    --azul-claro: #4087cf;
+    --gris-fondo: #f5f7fc;
+    --blanco: #ffffff;
+    --texto-oscuro: #1a2634;
+    --texto-gris: #4a5a6e;
+    --borde: #e2e8f0;
+    --verde: #2c9e8c;
+    --rojo: #e74c3c;
+    --naranja: #e08e0b;
+    --shadow: 0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', 'Arial', sans-serif;
+    background: var(--gris-fondo);
+    color: var(--texto-oscuro);
+    min-height: 100vh;
+    padding: 0 0 80px 0;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--azul) 0%, #0f4a8a 100%);
+    padding: 10px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .logo-muni {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-icono {
+    width: 42px;
+    height: 36px;
+    background: var(--blanco);
+    border-radius: 16%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .logo-icono img { width: 100%; height: 100%; object-fit: cover; }
+
+  .logo-texto {
+    font-weight: 700;
+    font-size: 10px;
+    color: white;
+    line-height: 1.2;
+  }
+  .logo-texto small { font-size: 7.5px; font-weight: 400; opacity: 0.85; display: block; }
+
+  .header-titulo {
+    font-size: 14px;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-sesion {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-radius: 30px;
+    padding: 4px 12px;
+    color: white;
+    cursor: pointer;
+    font-size: 10px;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .btn-sesion:hover { background: rgba(255,255,255,0.25); }
+  .btn-sesion .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    margin-right: 4px;
+  }
+  .btn-sesion .status-dot.offline { background: #f87171; }
+
+  .section {
+    background: var(--blanco);
+    border-radius: 20px;
+    margin: 10px 14px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--borde);
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--azul);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-left: 3px solid var(--azul);
+    padding-left: 10px;
+  }
+
+  .tabs-familias {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 2px 0 8px 0;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs-familias::-webkit-scrollbar { height: 3px; }
+  .tabs-familias::-webkit-scrollbar-thumb { background: var(--azul-claro); border-radius: 10px; }
+
+  .tab-familia {
+    flex: 0 0 auto;
+    padding: 6px 14px;
+    border-radius: 30px;
+    border: 1.5px solid var(--borde);
+    background: #f8fafc;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    color: var(--texto-gris);
+    white-space: nowrap;
+  }
+  .tab-familia.active {
+    background: var(--azul);
+    border-color: var(--azul);
+    color: white;
+    box-shadow: 0 2px 6px rgba(22,100,192,0.25);
+  }
+  .tab-familia .badge {
+    display: inline-block;
+    background: rgba(0,0,0,0.1);
+    border-radius: 20px;
+    font-size: 8px;
+    padding: 0 6px;
+    margin-left: 4px;
+  }
+  .tab-familia.active .badge { background: rgba(255,255,255,0.2); }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--texto-gris);
+    margin-bottom: 4px;
+  }
+  label.required::after { content: " *"; color: var(--rojo); }
+
+  input, select, textarea {
+    width: 100%;
+    background: #ffffff;
+    border: 1.5px solid var(--borde);
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 9px 12px;
+    outline: none;
+    transition: 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--azul);
+    box-shadow: 0 0 0 3px rgba(22,100,192,0.12);
+  }
+  input:disabled { background: #f1f5f9; color: var(--texto-gris); }
+
+  .field { margin-bottom: 12px; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .chips-tallas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .chip-talla {
+    padding: 3px 10px;
+    border-radius: 30px;
+    border: 1.5px solid var(--borde);
+    background: #f8fafc;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    color: var(--texto-gris);
+  }
+  .chip-talla.active {
+    background: var(--azul);
+    border-color: var(--azul);
+    color: white;
+  }
+  .chip-talla.stock-bajo {
+    border-color: var(--rojo);
+    background: #fff5f5;
+  }
+  .chip-talla.stock-bajo.active {
+    background: var(--rojo);
+    border-color: var(--rojo);
+    color: white;
+  }
+
+  .btn-primario {
+    background: var(--azul);
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 50px;
+    font-weight: 700;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-primario:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-primario:active { transform: scale(0.97); }
+
+  .btn-secundario {
+    background: #eef2f8;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    border-radius: 50px;
+    font-weight: 600;
+    color: var(--texto-gris);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .btn-secundario:active { transform: scale(0.97); }
+
+  .custom-dropdown { position: relative; }
+  .dropdown-input {
+    width: 100%;
+    background: #ffffff;
+    border: 1.5px solid var(--borde);
+    border-radius: 12px;
+    font-size: 14px;
+    padding: 9px 12px;
+    outline: none;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .dropdown-input:focus { border-color: var(--azul); box-shadow: 0 0 0 3px rgba(22,100,192,0.12); }
+  .dropdown-list {
+    background: white;
+    border: 1.5px solid var(--azul);
+    border-radius: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    position: absolute;
+    width: 100%;
+    z-index: 999;
+    display: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    border-bottom: 1px solid var(--borde);
+  }
+  .dropdown-item:last-child { border-bottom: none; }
+  .dropdown-item:hover { background: rgba(22,100,192,0.06); }
+  .dropdown-item .stock-info { font-size: 10px; color: var(--texto-gris); }
+
+  .qr-scanner-area {
+    background: #0a0a0a;
+    border-radius: 16px;
+    padding: 12px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .qr-scanner-area video {
+    width: 100%;
+    max-height: 200px;
+    border-radius: 12px;
+    object-fit: cover;
+  }
+  .qr-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .qr-overlay .cuadro {
+    width: 70%;
+    height: 60%;
+    border: 3px solid rgba(255,255,255,0.5);
+    border-radius: 16px;
+    box-shadow: 0 0 0 4000px rgba(0,0,0,0.35);
+  }
+  .qr-botonera {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .qr-botonera button {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    min-width: 80px;
+  }
+  .qr-botonera .btn-escanner { background: var(--azul); color: white; }
+  .qr-botonera .btn-escanner.activo { background: var(--rojo); }
+  .qr-botonera .btn-qr-generar { background: var(--verde); color: white; }
+
+  .ticket {
+    background: #fafcfd;
+    border: 2px dashed var(--azul-claro);
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    margin: 8px 0;
+  }
+  .ticket .ticket-header {
+    text-align: center;
+    border-bottom: 1px dashed #aaa;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+  .ticket .ticket-header h3 { font-size: 13px; color: var(--azul); }
+  .ticket .ticket-fila {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px dotted #eee;
+  }
+  .ticket .ticket-fila .label { color: var(--texto-gris); font-weight: 500; }
+  .ticket .ticket-fila .valor { font-weight: 700; }
+  .ticket .ticket-firma {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #aaa;
+  }
+  .ticket .ticket-firma .firma-linea {
+    text-align: center;
+    flex: 1;
+  }
+  .ticket .ticket-firma .firma-linea .linea {
+    border-top: 1px solid #333;
+    width: 80%;
+    margin: 6px auto 2px;
+  }
+  .ticket .ticket-footer {
+    text-align: center;
+    font-size: 8px;
+    color: var(--texto-gris);
+    margin-top: 8px;
+    border-top: 1px dashed #aaa;
+    padding-top: 8px;
+  }
+
+  .salida-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--borde);
+  }
+  .salida-item:last-child { border-bottom: none; }
+  .salida-item .s-icono { font-size: 20px; width: 36px; text-align: center; }
+  .salida-item .s-info { flex: 1; min-width: 0; }
+  .salida-item .s-info .s-nombre { font-weight: 700; font-size: 13px; }
+  .salida-item .s-info .s-meta { font-size: 10.5px; color: var(--texto-gris); }
+  .salida-item .s-cantidad {
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--rojo);
+    text-align: center;
+    min-width: 36px;
+  }
+
+  .resumen-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .resumen-card {
+    background: #f8fafc;
+    border-radius: 14px;
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid var(--borde);
+  }
+  .resumen-card .num { font-size: 22px; font-weight: 800; color: var(--azul); }
+  .resumen-card .lbl { font-size: 8.5px; color: var(--texto-gris); text-transform: uppercase; letter-spacing: 0.3px; }
+  .resumen-card.rojo .num { color: var(--rojo); }
+  .resumen-card.verde .num { color: var(--verde); }
+
+  .top-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+  }
+  .top-item .top-pos {
+    font-weight: 800;
+    color: var(--azul);
+    width: 24px;
+    text-align: center;
+  }
+  .top-item .top-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--borde);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .top-item .top-bar .top-fill {
+    height: 100%;
+    background: var(--azul);
+    border-radius: 10px;
+    transition: 0.3s;
+  }
+  .top-item .top-nombre { font-size: 11px; font-weight: 500; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .top-item .top-cant { font-weight: 700; font-size: 13px; color: var(--texto-gris); }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    align-items: flex-end;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal {
+    background: white;
+    max-height: 92vh;
+    border-radius: 28px 28px 0 0;
+    overflow: auto;
+    padding: 18px 16px 30px;
+    width: 100%;
+  }
+  .modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .modal .modal-header h2 { font-size: 16px; }
+
+  .btn-cerrar-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--texto-gris);
+  }
+
+  #toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a2634;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 40px;
+    opacity: 0;
+    transition: 0.3s;
+    pointer-events: none;
+    z-index: 300;
+    font-size: 12px;
+    font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  #toast.show { opacity: 1; }
+
+  .qr-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+  }
+  .qr-display #qr-code-container { background: white; padding: 8px; border-radius: 12px; }
+
+  .badge-familia {
+    display: inline-block;
+    font-size: 8px;
+    background: var(--borde);
+    padding: 1px 8px;
+    border-radius: 20px;
+    color: var(--texto-gris);
+    font-weight: 600;
+  }
+
+  .login-banner {
+    background: #fef9e7;
+    border: 1px solid #f1c40f;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-size: 11px;
+    color: #7d6608;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+  .login-banner .icono { font-size: 18px; }
+  .login-banner .accion {
+    color: var(--azul);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .empty-state { text-align: center; color: var(--texto-gris); font-size: 12px; padding: 20px 0; }
+
+  footer {
+    text-align: center;
+    color: var(--texto-gris);
+    font-size: 9px;
+    padding: 16px 16px 30px;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 600px) {
+    .header-titulo { font-size: 12px; }
+    .logo-texto { font-size: 8px; }
+    .resumen-grid { grid-template-columns: 1fr 1fr 1fr; }
+    .row-2 { grid-template-columns: 1fr; }
+    .section { margin: 8px 10px; padding: 12px; }
+    .ticket { font-size: 10px; }
+    .btn-sesion { max-width: 100px; font-size: 8px; padding: 3px 8px; }
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--gris-fondo); }
+  ::-webkit-scrollbar-thumb { background: var(--azul-claro); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo-muni">
+      <div class="logo-icono">
+        <img src="https://i.postimg.cc/MGhWmdq0/LC.jpg" alt="LC">
+      </div>
+      <div class="logo-texto">
+        MUNICIPALIDAD DE LAS CONDES
+        <small>Depto. Gestión de Riesgos y Desastres</small>
+      </div>
+    </div>
+    <div class="header-titulo">🚚 SALIDA DE PRODUCTOS</div>
+    <button id="btn-sesion" class="btn-sesion">
+      <span class="status-dot offline" id="status-dot"></span>
+      <span id="btn-sesion-texto">Iniciar sesión</span>
+    </button>
+  </div>
+</div>
+
+<!-- BANNER LOGIN -->
+<div class="section" id="banner-login" style="display:none;">
+  <div class="login-banner" id="login-banner" style="display:flex;">
+    <span class="icono">🔐</span>
+    <span>Para registrar salidas, debes iniciar sesión con tu cuenta <strong>@lascondes.cl</strong>. 
+    <span class="accion" onclick="iniciarSesionMicrosoft()">Haz clic aquí para iniciar sesión</span></span>
+  </div>
+</div>
+
+<!-- RESUMEN -->
+<div class="section">
+  <div class="section-label">📊 Resumen del día</div>
+  <div class="resumen-grid">
+    <div class="resumen-card"><div class="num" id="res-salidas-hoy">0</div><div class="lbl">Salidas hoy</div></div>
+    <div class="resumen-card rojo"><div class="num" id="res-unidades-hoy">0</div><div class="lbl">Unidades entregadas</div></div>
+    <div class="resumen-card verde"><div class="num" id="res-productos-unicos">0</div><div class="lbl">Productos distintos</div></div>
+  </div>
+</div>
+
+<!-- REGISTRAR SALIDA -->
+<div class="section">
+  <div class="section-label">⬆️ Nueva Salida</div>
+
+  <!-- TABS FAMILIAS -->
+  <div class="field">
+    <label>📂 Familia de productos</label>
+    <div class="tabs-familias" id="tabs-familias">
+      <div class="tab-familia active" data-familia="todas" onclick="seleccionarFamilia('todas')">📦 Todas <span class="badge" id="badge-todas">0</span></div>
+      <div class="tab-familia" data-familia="maquinarias" onclick="seleccionarFamilia('maquinarias')">🔧 Maquinarias <span class="badge" id="badge-maquinarias">0</span></div>
+      <div class="tab-familia" data-familia="epp_basico" onclick="seleccionarFamilia('epp_basico')">🛡️ EPP Básico <span class="badge" id="badge-epp_basico">0</span></div>
+      <div class="tab-familia" data-familia="epp_especial" onclick="seleccionarFamilia('epp_especial')">🧥 EPP Especial <span class="badge" id="badge-epp_especial">0</span></div>
+      <div class="tab-familia" data-familia="epp_climatico" onclick="seleccionarFamilia('epp_climatico')">🌧️ EPP Climático <span class="badge" id="badge-epp_climatico">0</span></div>
+    </div>
+  </div>
+
+  <!-- QR Scanner -->
+  <div class="field">
+    <label>📷 Escanear código QR del producto</label>
+    <div class="qr-scanner-area" id="qr-scanner-area">
+      <video id="qr-video" autoplay playsinline></video>
+      <div class="qr-overlay"><div class="cuadro"></div></div>
+    </div>
+    <div class="qr-botonera">
+      <button class="btn-escanner" id="btn-iniciar-escanner">📷 Iniciar escáner</button>
+      <button class="btn-qr-generar" onclick="generarQRProducto()">🔲 Ver QR de producto</button>
+    </div>
+    <div id="qr-resultado" style="margin-top:6px; font-size:12px; color:var(--verde); font-weight:600;"></div>
+  </div>
+
+  <!-- Selección de producto -->
+  <div class="field">
+    <label class="required">Producto</label>
+    <div class="custom-dropdown">
+      <input type="text" id="prod-trigger" class="dropdown-input" placeholder="Buscar o escanear producto..." readonly>
+      <div class="dropdown-list" id="prod-list"></div>
+    </div>
+  </div>
+
+  <!-- Tallas -->
+  <div class="field" id="campo-tallas" style="display:none;">
+    <label class="required">Talla</label>
+    <div class="chips-tallas" id="chips-tallas">
+      <div class="chip-talla" data-talla="S" onclick="seleccionarTalla('S')">S</div>
+      <div class="chip-talla" data-talla="M" onclick="seleccionarTalla('M')">M</div>
+      <div class="chip-talla" data-talla="L" onclick="seleccionarTalla('L')">L</div>
+      <div class="chip-talla" data-talla="XL" onclick="seleccionarTalla('XL')">XL</div>
+      <div class="chip-talla" data-talla="XXL" onclick="seleccionarTalla('XXL')">XXL</div>
+      <div class="chip-talla" data-talla="XXXL" onclick="seleccionarTalla('XXXL')">XXXL</div>
+    </div>
+    <div id="stock-talla-info" style="font-size:10px; color:var(--texto-gris); margin-top:4px;"></div>
+  </div>
+
+  <div class="row-2">
+    <div class="field">
+      <label class="required">Cantidad</label>
+      <input type="number" id="salida-cantidad" min="1" placeholder="0">
+    </div>
+    <div class="field">
+      <label>Unidad</label>
+      <input type="text" id="salida-unidad" disabled style="background:#f1f5f9;">
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="required">Destino / Recibe</label>
+    <input type="text" id="salida-destino" placeholder="Ej: Brigada A, Juan Pérez, Sector 5">
+  </div>
+
+  <div class="field">
+    <label>Observación (opcional)</label>
+    <textarea id="salida-obs" rows="2" placeholder="Motivo de la salida, proyecto, etc."></textarea>
+  </div>
+
+  <div class="btn-fila">
+    <button class="btn-primario" id="btn-registrar" onclick="registrarSalida()">✅ Registrar Salida</button>
+  </div>
+  <button class="btn-secundario" onclick="mostrarComprobanteUltima()" style="margin-top:6px;">📋 Ver último comprobante</button>
+</div>
+
+<!-- ÚLTIMAS SALIDAS -->
+<div class="section">
+  <div class="section-label">🕒 Últimas salidas</div>
+  <div id="lista-salidas"></div>
+</div>
+
+<!-- TOP PRODUCTOS -->
+<div class="section">
+  <div class="section-label">🏆 Productos más solicitados</div>
+  <div id="top-productos"></div>
+</div>
+
+<!-- STOCK CRÍTICO -->
+<div class="section">
+  <div class="section-label">⚠️ Stock crítico</div>
+  <div id="stock-critico"></div>
+</div>
+
+<footer>Los datos se guardan localmente · Municipalidad de Las Condes · GRRD</footer>
+
+<!-- MODAL COMPROBANTE -->
+<div class="modal-overlay" id="modal-comprobante">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🧾 Comprobante de Salida</h2>
+      <button class="btn-cerrar-modal" onclick="cerrarModalComprobante()">✕</button>
+    </div>
+    <div id="ticket-content" class="ticket"></div>
+    <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+      <button class="btn-primario" style="flex:1;" onclick="imprimirComprobante()">🖨️ Imprimir</button>
+      <button class="btn-primario" style="flex:1; background:var(--verde);" onclick="descargarPDFComprobante()">📄 PDF</button>
+      <button class="btn-secundario" style="flex:1;" onclick="cerrarModalComprobante()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL QR -->
+<div class="modal-overlay" id="modal-qr">
+  <div class="modal" style="max-height:80vh;">
+    <div class="modal-header">
+      <h2>🔲 Código QR del Producto</h2>
+      <button class="btn-cerrar-modal" onclick="cerrarModalQR()">✕</button>
+    </div>
+    <div class="qr-display">
+      <div id="qr-code-container"></div>
+      <div id="qr-producto-nombre" style="font-weight:700; font-size:14px;"></div>
+      <div id="qr-producto-id" style="font-size:10px; color:var(--texto-gris);"></div>
+      <button class="btn-primario" style="max-width:200px; margin-top:8px;" onclick="descargarQR()">💾 Descargar QR</button>
+    </div>
+    <button class="btn-secundario" onclick="cerrarModalQR()">Cerrar</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.2/dist/quagga.min.js"></script>
+<script>
+// ==================== CONFIGURACIÓN MSAL (copiada del informe de emergencia) ====================
+const msalConfig = {
+  auth: {
+    clientId: '774aa002-531a-4271-a1d8-f7bc4da9bc3d',
+    authority: 'https://login.microsoftonline.com/3b2a8aaa-7404-4137-8bae-cbd67f7003c2',
+    redirectUri: window.location.origin
+  },
+  cache: { cacheLocation: 'localStorage' }
+};
+
+const msalInstance = new msal.PublicClientApplication(msalConfig);
+let usuarioAutenticado = null;
+let usuarioDominioValido = false;
+
+// ==================== VERIFICACIÓN DE DOMINIO @LASCONDES.CL ====================
+function validarDominioLasCondes(email) {
+  if (!email) return false;
+  return email.toLowerCase().endsWith('@lascondes.cl');
+}
+
+// ==================== FUNCIONES DE AUTENTICACIÓN (copiadas) ====================
+async function obtenerToken() {
+  try {
+    const account = msalInstance.getAllAccounts()[0];
+    if (!account) return null;
+    const response = await msalInstance.acquireTokenSilent({
+      account: account,
+      scopes: ['user.read']
+    });
+    return response.accessToken;
+  } catch (error) {
+    console.error('Error obteniendo token:', error);
+    return null;
+  }
+}
+
+async function iniciarSesionMicrosoft() {
+  try {
+    const accounts = msalInstance.getAllAccounts();
+    if (accounts.length > 0) {
+      usuarioAutenticado = accounts[0];
+      const email = usuarioAutenticado.username;
+      if (validarDominioLasCondes(email)) {
+        usuarioDominioValido = true;
+        await obtenerToken();
+        mostrarToast(`✅ Bienvenido, ${email}`);
+        actualizarEstadoSesion(true);
+        return usuarioAutenticado;
+      } else {
+        mostrarToast(`❌ Debes usar una cuenta @lascondes.cl. Usaste: ${email}`);
+        usuarioDominioValido = false;
+        actualizarEstadoSesion(false);
+        await cerrarSesionMicrosoft();
+        return null;
+      }
+    }
+    await msalInstance.loginRedirect({ scopes: ['user.read'] });
+    return null;
+  } catch (error) {
+    mostrarToast('❌ Error al iniciar sesión');
+    console.error(error);
+    return null;
+  }
+}
+
+async function cerrarSesionMicrosoft() {
+  try {
+    await msalInstance.logoutRedirect();
+  } catch (e) {
+    msalInstance.setActiveAccount(null);
+  }
+  usuarioAutenticado = null;
+  usuarioDominioValido = false;
+  actualizarEstadoSesion(false);
+  mostrarToast('🔓 Sesión cerrada');
+}
+
+async function handleRedirectResponse() {
+  try {
+    const response = await msalInstance.handleRedirectPromise();
+    if (response && response.account) {
+      usuarioAutenticado = response.account;
+      const email = usuarioAutenticado.username;
+      if (validarDominioLasCondes(email)) {
+        usuarioDominioValido = true;
+        await obtenerToken();
+        mostrarToast(`✅ Bienvenido, ${email}`);
+        actualizarEstadoSesion(true);
+      } else {
+        mostrarToast(`❌ Cuenta no válida. Debes usar @lascondes.cl`);
+        usuarioDominioValido = false;
+        actualizarEstadoSesion(false);
+        await cerrarSesionMicrosoft();
+      }
+    }
+  } catch (error) {
+    console.error('Error en redirect:', error);
+  }
+}
+
+async function verificarSesion() {
+  await handleRedirectResponse();
+  const accounts = msalInstance.getAllAccounts();
+  if (accounts.length > 0) {
+    usuarioAutenticado = accounts[0];
+    const email = usuarioAutenticado.username;
+    if (validarDominioLasCondes(email)) {
+      usuarioDominioValido = true;
+      await obtenerToken();
+      actualizarEstadoSesion(true);
+    } else {
+      usuarioDominioValido = false;
+      actualizarEstadoSesion(false);
+      mostrarToast(`⚠️ Usuario ${email} no es @lascondes.cl`);
+      await cerrarSesionMicrosoft();
+    }
+  } else {
+    actualizarEstadoSesion(false);
+  }
+}
+
+// ==================== ESTADO DE SESIÓN EN UI ====================
+function actualizarEstadoSesion(autenticado) {
+  const btn = document.getElementById('btn-sesion');
+  const texto = document.getElementById('btn-sesion-texto');
+  const dot = document.getElementById('status-dot');
+  const banner = document.getElementById('banner-login');
+  const btnRegistrar = document.getElementById('btn-registrar');
+
+  if (autenticado && usuarioDominioValido && usuarioAutenticado) {
+    const email = usuarioAutenticado.username;
+    const nombre = email.split('@')[0];
+    texto.textContent = `👤 ${nombre}`;
+    dot.className = 'status-dot';
+    btn.title = 'Cerrar sesión';
+    btn.onclick = cerrarSesionMicrosoft;
+    banner.style.display = 'none';
+    btnRegistrar.disabled = false;
+    btnRegistrar.textContent = '✅ Registrar Salida';
+  } else {
+    texto.textContent = 'Iniciar sesión';
+    dot.className = 'status-dot offline';
+    btn.title = 'Iniciar sesión con cuenta @lascondes.cl';
+    btn.onclick = iniciarSesionMicrosoft;
+    banner.style.display = 'block';
+    btnRegistrar.disabled = true;
+    btnRegistrar.textContent = '🔒 Inicia sesión para registrar';
+  }
+}
+
+// ==================== CONFIGURACIÓN DE PRODUCTOS ====================
+const TALLAS = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+
+const FAMILIAS = {
+  maquinarias: {
+    label: 'Maquinarias',
+    icono: '🔧',
+    productos: [
+      'Motobomba de Agua', 'Bomba Periférica', 'Bomba Sumergible', 'Bomba Pozo Profundo',
+      'Generador Eléctrico', 'Esmeril Angular', 'Taladro Percutor', 'Martillo Demoledor',
+      'Sierra Circular', 'Soldadora Inverter', 'Compresor de Aire', 'Rotomartillo'
+    ]
+  },
+  epp_basico: {
+    label: 'EPP Básico',
+    icono: '🛡️',
+    tieneTalla: true,
+    productos: [
+      'Casco de Seguridad', 'Guante de Seguridad', 'Bota de Seguridad', 'Zapato de Seguridad',
+      'Botín de Seguridad', 'Lentes de Seguridad', 'Antiparras', 'Chaleco Geólogo'
+    ]
+  },
+  epp_especial: {
+    label: 'EPP Especial',
+    icono: '🧥',
+    tieneTalla: true,
+    productos: [
+      'Parka Térmica', 'Overol de Trabajo', 'Chaqueta Softshell', 'Chaqueta Polar',
+      'Pantalón de Trabajo', 'Camisa de Trabajo', 'Polera Térmica', 'Ropa Ignífuga'
+    ]
+  },
+  epp_climatico: {
+    label: 'EPP Climático',
+    icono: '🌧️',
+    tieneTalla: true,
+    productos: [
+      'Capa de Agua', 'Traje de Agua', 'Pantalón de Agua', 'Cubrebotas', 'Jardinera',
+      'Chaqueta Impermeable', 'Traje de Lluvia'
+    ]
+  }
+};
+
+// ==================== DATOS ====================
+let items = JSON.parse(localStorage.getItem('inv_items_salidas_v2') || 'null');
+
+function generarItemsIniciales() {
+  const nuevos = [];
+  let idCounter = 0;
+  Object.entries(FAMILIAS).forEach(([familiaKey, familia]) => {
+    familia.productos.forEach(nombre => {
+      const tieneTalla = familia.tieneTalla || false;
+      if (tieneTalla) {
+        TALLAS.forEach(talla => {
+          nuevos.push({
+            id: 'i' + (++idCounter).toString().padStart(4, '0'),
+            nombre: nombre,
+            familia: familiaKey,
+            categoria: familia.label,
+            tieneTalla: true,
+            talla: talla,
+            codigo: '',
+            unidad: 'Unidad',
+            stock: Math.floor(Math.random() * 15) + 2,
+            stockMin: 2,
+            ubicacion: 'Bodega GRRD',
+            estado: 'Operativo',
+            foto: null,
+            fechaIngreso: fechaHoraActual()
+          });
+        });
+      } else {
+        nuevos.push({
+          id: 'i' + (++idCounter).toString().padStart(4, '0'),
+          nombre: nombre,
+          familia: familiaKey,
+          categoria: familia.label,
+          tieneTalla: false,
+          talla: null,
+          codigo: '',
+          unidad: 'Unidad',
+          stock: Math.floor(Math.random() * 10) + 3,
+          stockMin: 2,
+          ubicacion: 'Bodega GRRD',
+          estado: 'Operativo',
+          foto: null,
+          fechaIngreso: fechaHoraActual()
+        });
+      }
+    });
+  });
+  return nuevos;
+}
+
+if (!items || items.length === 0) {
+  items = generarItemsIniciales();
+  localStorage.setItem('inv_items_salidas_v2', JSON.stringify(items));
+}
+
+let salidas = JSON.parse(localStorage.getItem('salidas_registradas_v2') || '[]');
+let productoSeleccionadoId = null;
+let tallaSeleccionada = null;
+let ultimoComprobante = null;
+let escannerActivo = false;
+let qrProductoActual = null;
+let currentQRCode = null;
+let familiaSeleccionada = 'todas';
+
+// ==================== FUNCIONES BASE ====================
+function generarId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 7); }
+
+function fechaHoraActual() {
+  const now = new Date();
+  const dd = now.getDate().toString().padStart(2, '0');
+  const mm = (now.getMonth() + 1).toString().padStart(2, '0');
+  const yyyy = now.getFullYear();
+  const hh = now.getHours().toString().padStart(2, '0');
+  const min = now.getMinutes().toString().padStart(2, '0');
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+}
+
+function esHoy(fechaStr) {
+  const hoy = new Date();
+  const ddHoy = hoy.getDate().toString().padStart(2, '0');
+  const mmHoy = (hoy.getMonth() + 1).toString().padStart(2, '0');
+  const yyyyHoy = hoy.getFullYear();
+  return fechaStr.startsWith(`${ddHoy}/${mmHoy}/${yyyyHoy}`);
+}
+
+function guardarStorage() {
+  localStorage.setItem('inv_items_salidas_v2', JSON.stringify(items));
+  localStorage.setItem('salidas_registradas_v2', JSON.stringify(salidas));
+}
+
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// ==================== FAMILIAS ====================
+function seleccionarFamilia(familia) {
+  familiaSeleccionada = familia;
+  document.querySelectorAll('.tab-familia').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.familia === familia);
+  });
+  poblarDropdownProductos();
+  document.getElementById('prod-trigger').value = '';
+  productoSeleccionadoId = null;
+  document.getElementById('salida-unidad').value = '';
+  ocultarTallas();
+}
+
+function actualizarBadges() {
+  const total = items.length;
+  document.getElementById('badge-todas').textContent = total;
+  Object.keys(FAMILIAS).forEach(key => {
+    const count = items.filter(i => i.familia === key).length;
+    document.getElementById('badge-' + key).textContent = count;
+  });
+}
+
+// ==================== TALLAS ====================
+function mostrarTallas(producto) {
+  const campo = document.getElementById('campo-tallas');
+  if (producto && producto.tieneTalla) {
+    campo.style.display = 'block';
+    const tallasConStock = TALLAS.map(t => {
+      const item = items.find(i => i.nombre === producto.nombre && i.talla === t && i.familia === producto.familia);
+      return { talla: t, stock: item ? item.stock : 0 };
+    });
+    const chips = document.querySelectorAll('.chip-talla');
+    chips.forEach(chip => {
+      const t = chip.dataset.talla;
+      const info = tallasConStock.find(s => s.talla === t);
+      const stock = info ? info.stock : 0;
+      chip.classList.toggle('stock-bajo', stock <= 2 && stock > 0);
+      chip.classList.remove('active');
+      chip.textContent = `${t} (${stock})`;
+      chip.dataset.stock = stock;
+      chip.onclick = () => seleccionarTalla(t);
+    });
+    document.getElementById('stock-talla-info').textContent = 'Seleccione una talla · Stock disponible entre paréntesis';
+    tallaSeleccionada = null;
+  } else {
+    campo.style.display = 'none';
+    tallaSeleccionada = null;
+  }
+}
+
+function ocultarTallas() {
+  document.getElementById('campo-tallas').style.display = 'none';
+  tallaSeleccionada = null;
+}
+
+function seleccionarTalla(talla) {
+  tallaSeleccionada = talla;
+  document.querySelectorAll('.chip-talla').forEach(c => c.classList.toggle('active', c.dataset.talla === talla));
+
+  const producto = items.find(i => i.id === productoSeleccionadoId);
+  if (producto) {
+    const itemTalla = items.find(i => i.nombre === producto.nombre && i.talla === talla && i.familia === producto.familia);
+    if (itemTalla) {
+      document.getElementById('salida-cantidad').max = itemTalla.stock;
+      document.getElementById('stock-talla-info').textContent = `Stock disponible para talla ${talla}: ${itemTalla.stock} ${itemTalla.unidad}(s)`;
+    }
+  }
+}
+
+// ==================== DROPDOWN PRODUCTOS ====================
+function poblarDropdownProductos() {
+  const list = document.getElementById('prod-list');
+  const input = document.getElementById('prod-trigger');
+  list.innerHTML = '';
+
+  let productosFiltrados = items.slice();
+  if (familiaSeleccionada !== 'todas') {
+    productosFiltrados = productosFiltrados.filter(i => i.familia === familiaSeleccionada);
+  }
+
+  if (productosFiltrados.length === 0) {
+    input.value = '';
+    productoSeleccionadoId = null;
+    const div = document.createElement('div');
+    div.className = 'dropdown-item';
+    div.textContent = 'No hay productos en esta familia';
+    list.appendChild(div);
+    return;
+  }
+
+  const agrupados = {};
+  productosFiltrados.forEach(item => {
+    const key = item.nombre + '|' + item.familia;
+    if (!agrupados[key]) agrupados[key] = [];
+    agrupados[key].push(item);
+  });
+
+  Object.entries(agrupados).forEach(([key, grupo]) => {
+    const primerItem = grupo[0];
+    const tieneTalla = primerItem.tieneTalla;
+    const div = document.createElement('div');
+    div.className = 'dropdown-item';
+    const icono = FAMILIAS[primerItem.familia]?.icono || '📦';
+    let stockTotal = grupo.reduce((a, i) => a + i.stock, 0);
+    let infoTallas = '';
+    if (tieneTalla) {
+      const tallasInfo = grupo.map(i => `${i.talla}:${i.stock}`).join(' ');
+      infoTallas = ` · Tallas: ${tallasInfo}`;
+    }
+    div.innerHTML = `${icono} ${primerItem.nombre} <span class="stock-info">(total: ${stockTotal}${infoTallas})</span>`;
+    div.onclick = () => {
+      input.value = primerItem.nombre;
+      productoSeleccionadoId = primerItem.id;
+      document.getElementById('salida-unidad').value = primerItem.unidad || 'Unidad';
+      list.style.display = 'none';
+      document.getElementById('qr-resultado').textContent = `✅ Producto seleccionado: ${primerItem.nombre}`;
+
+      if (tieneTalla) {
+        mostrarTallas(primerItem);
+        const conStock = grupo.filter(i => i.stock > 0);
+        if (conStock.length > 0) {
+          seleccionarTalla(conStock[0].talla);
+        }
+      } else {
+        ocultarTallas();
+        document.getElementById('salida-cantidad').max = primerItem.stock;
+      }
+    };
+    list.appendChild(div);
+  });
+
+  input.onclick = () => {
+    if (list.style.display === 'block') list.style.display = 'none';
+    else { list.style.display = 'block'; }
+  };
+}
+
+// ==================== QR SCANNER ====================
+let scannerIniciado = false;
+
+async function iniciarEscanner() {
+  const btn = document.getElementById('btn-iniciar-escanner');
+  const video = document.getElementById('qr-video');
+
+  if (scannerIniciado) {
+    detenerEscanner();
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    video.srcObject = stream;
+    await video.play();
+    scannerIniciado = true;
+    btn.textContent = '⏹ Detener escáner';
+    btn.classList.add('activo');
+    mostrarToast('📷 Escáner activado, apunta a un QR');
+
+    Quagga.init({
+      inputStream: {
+        name: "Live",
+        type: "LiveStream",
+        target: video,
+        constraints: { facingMode: "environment" }
+      },
+      decoder: { readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "upc_reader", "qr_reader"] }
+    }, function(err) {
+      if (err) {
+        console.error(err);
+        mostrarToast('❌ Error al iniciar decodificador');
+        return;
+      }
+      Quagga.start();
+    });
+
+    Quagga.onDetected(function(result) {
+      const code = result.codeResult.code;
+      procesarQR(code);
+      detenerEscanner();
+    });
+
+  } catch (e) {
+    mostrarToast('❌ No se pudo acceder a la cámara');
+    console.error(e);
+  }
+}
+
+function detenerEscanner() {
+  const video = document.getElementById('qr-video');
+  const btn = document.getElementById('btn-iniciar-escanner');
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
+  }
+  Quagga.stop();
+  scannerIniciado = false;
+  btn.textContent = '📷 Iniciar escáner';
+  btn.classList.remove('activo');
+}
+
+function procesarQR(codigo) {
+  const producto = items.find(i => i.id === codigo || i.codigo === codigo);
+  if (producto) {
+    productoSeleccionadoId = producto.id;
+    document.getElementById('prod-trigger').value = producto.nombre;
+    document.getElementById('salida-unidad').value = producto.unidad || 'Unidad';
+    document.getElementById('qr-resultado').textContent = `✅ QR detectado: ${producto.nombre}`;
+    mostrarToast(`📦 Producto detectado: ${producto.nombre}`);
+
+    if (producto.tieneTalla) {
+      mostrarTallas(producto);
+      const conStock = items.filter(i => i.nombre === producto.nombre && i.familia === producto.familia && i.stock > 0);
+      if (conStock.length > 0) seleccionarTalla(conStock[0].talla);
+    } else {
+      ocultarTallas();
+      document.getElementById('salida-cantidad').max = producto.stock;
+    }
+  } else {
+    mostrarToast('❌ Producto no encontrado');
+    document.getElementById('qr-resultado').textContent = '❌ Producto no encontrado';
+  }
+}
+
+// ==================== GENERAR QR ====================
+function generarQRProducto() {
+  if (!productoSeleccionadoId) {
+    mostrarToast('❌ Seleccione un producto primero');
+    return;
+  }
+  const producto = items.find(i => i.id === productoSeleccionadoId);
+  if (!producto) { mostrarToast('❌ Producto no encontrado'); return; }
+
+  qrProductoActual = producto;
+  const container = document.getElementById('qr-code-container');
+  container.innerHTML = '';
+  currentQRCode = new QRCode(container, {
+    text: producto.id,
+    width: 180,
+    height: 180,
+    colorDark: '#1664c0',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  document.getElementById('qr-producto-nombre').textContent = `${producto.nombre}${producto.talla ? ' (' + producto.talla + ')' : ''}`;
+  document.getElementById('qr-producto-id').textContent = `ID: ${producto.id}`;
+  document.getElementById('modal-qr').classList.add('visible');
+}
+
+function cerrarModalQR() {
+  document.getElementById('modal-qr').classList.remove('visible');
+}
+
+function descargarQR() {
+  const canvas = document.querySelector('#qr-code-container canvas');
+  if (!canvas) { mostrarToast('❌ No hay QR para descargar'); return; }
+  const link = document.createElement('a');
+  link.download = `QR_${qrProductoActual?.nombre?.replace(/\s/g, '_') || 'producto'}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  mostrarToast('✅ QR descargado');
+}
+
+// ==================== REGISTRAR SALIDA ====================
+function registrarSalida() {
+  if (!usuarioAutenticado || !usuarioDominioValido) {
+    mostrarToast('❌ Debes iniciar sesión con @lascondes.cl para registrar salidas');
+    return;
+  }
+
+  const productoBase = items.find(i => i.id === productoSeleccionadoId);
+  const cantidad = parseInt(document.getElementById('salida-cantidad').value);
+  const destino = document.getElementById('salida-destino').value.trim();
+  const obs = document.getElementById('salida-obs').value.trim();
+
+  if (!productoBase) { mostrarToast('❌ Seleccione un producto'); return; }
+  if (isNaN(cantidad) || cantidad <= 0) { mostrarToast('❌ Ingrese una cantidad válida'); return; }
+  if (!destino) { mostrarToast('❌ Indique el destino o quien recibe'); return; }
+
+  let productoStock = null;
+  let tallaUsada = null;
+
+  if (productoBase.tieneTalla) {
+    if (!tallaSeleccionada) {
+      mostrarToast('❌ Seleccione una talla');
+      return;
+    }
+    tallaUsada = tallaSeleccionada;
+    productoStock = items.find(i =>
+      i.nombre === productoBase.nombre &&
+      i.talla === tallaSeleccionada &&
+      i.familia === productoBase.familia
+    );
+    if (!productoStock) {
+      mostrarToast('❌ No hay stock para esta talla');
+      return;
+    }
+    if (cantidad > productoStock.stock) {
+      mostrarToast(`❌ Stock insuficiente para talla ${tallaSeleccionada}. Disponible: ${productoStock.stock}`);
+      return;
+    }
+    productoStock.stock -= cantidad;
+  } else {
+    if (cantidad > productoBase.stock) {
+      mostrarToast(`❌ Stock insuficiente. Disponible: ${productoBase.stock}`);
+      return;
+    }
+    productoBase.stock -= cantidad;
+  }
+
+  const salida = {
+    id: generarId(),
+    productoId: productoBase.id,
+    productoNombre: productoBase.nombre,
+    talla: tallaUsada,
+    categoria: productoBase.categoria,
+    familia: productoBase.familia,
+    cantidad,
+    unidad: productoBase.unidad || 'Unidad',
+    destino,
+    observacion: obs,
+    responsable: usuarioAutenticado ? usuarioAutenticado.username : 'Personal GRRD',
+    fecha: fechaHoraActual(),
+    timestamp: Date.now()
+  };
+
+  salidas.unshift(salida);
+  ultimoComprobante = salida;
+  guardarStorage();
+
+  document.getElementById('salida-cantidad').value = '';
+  document.getElementById('salida-destino').value = '';
+  document.getElementById('salida-obs').value = '';
+  document.getElementById('prod-trigger').value = '';
+  productoSeleccionadoId = null;
+  document.getElementById('salida-unidad').value = '';
+  document.getElementById('qr-resultado').textContent = '';
+  ocultarTallas();
+  tallaSeleccionada = null;
+
+  mostrarToast(`✅ Salida registrada: ${cantidad} ${salida.unidad}(s) de ${productoBase.nombre}${tallaUsada ? ' (talla ' + tallaUsada + ')' : ''}`);
+
+  actualizarDashboard();
+  actualizarBadges();
+  poblarDropdownProductos();
+  mostrarComprobante(ultimoComprobante);
+}
+
+// ==================== COMPROBANTE ====================
+function mostrarComprobante(salida) {
+  const modal = document.getElementById('modal-comprobante');
+  const content = document.getElementById('ticket-content');
+
+  const numTicket = String(salidas.length).padStart(4, '0');
+  content.innerHTML = `
+    <div class="ticket-header">
+      <h3>🏛️ MUNICIPALIDAD DE LAS CONDES</h3>
+      <div style="font-size:9px;">Depto. Gestión de Riesgos y Desastres</div>
+      <div style="font-weight:700; font-size:14px; margin-top:4px;">COMPROBANTE DE SALIDA N° ${numTicket}</div>
+    </div>
+    <div class="ticket-fila"><span class="label">Fecha</span><span class="valor">${salida.fecha}</span></div>
+    <div class="ticket-fila"><span class="label">Producto</span><span class="valor">${salida.productoNombre}${salida.talla ? ' (' + salida.talla + ')' : ''}</span></div>
+    <div class="ticket-fila"><span class="label">Cantidad</span><span class="valor">${salida.cantidad} ${salida.unidad}(s)</span></div>
+    <div class="ticket-fila"><span class="label">Destino / Recibe</span><span class="valor">${salida.destino}</span></div>
+    ${salida.observacion ? `<div class="ticket-fila"><span class="label">Observación</span><span class="valor">${salida.observacion}</span></div>` : ''}
+    <div class="ticket-fila"><span class="label">Entregado por</span><span class="valor">${salida.responsable || 'Personal GRRD'}</span></div>
+    <div class="ticket-firma">
+      <div class="firma-linea">
+        <div>Entregado por</div>
+        <div class="linea"></div>
+      </div>
+      <div class="firma-linea">
+        <div>Recibido por</div>
+        <div class="linea"></div>
+      </div>
+    </div>
+    <div class="ticket-footer">
+      Este comprobante es de carácter informativo.<br>
+      ${salida.fecha}
+    </div>
+  `;
+
+  modal.classList.add('visible');
+  ultimoComprobante = salida;
+}
+
+function mostrarComprobanteUltima() {
+  if (!ultimoComprobante) {
+    if (salidas.length === 0) {
+      mostrarToast('❌ No hay salidas registradas');
+      return;
+    }
+    ultimoComprobante = salidas[0];
+  }
+  mostrarComprobante(ultimoComprobante);
+}
+
+function cerrarModalComprobante() {
+  document.getElementById('modal-comprobante').classList.remove('visible');
+}
+
+function imprimirComprobante() {
+  const content = document.getElementById('ticket-content').innerHTML;
+  const ventana = window.open('', '_blank');
+  ventana.document.write(`
+    <html><head><title>Comprobante de Salida</title>
+    <style>
+      body { font-family: 'Courier New', monospace; padding: 20px; max-width: 350px; margin: 0 auto; }
+      .ticket { background: white; border: 2px dashed #1664c0; border-radius: 12px; padding: 16px; }
+      .ticket-header { text-align: center; border-bottom: 1px dashed #aaa; padding-bottom: 8px; margin-bottom: 8px; }
+      .ticket-header h3 { font-size: 14px; color: #1664c0; margin:0; }
+      .ticket-fila { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dotted #eee; }
+      .ticket-fila .label { color: #666; font-weight: 500; }
+      .ticket-fila .valor { font-weight: 700; }
+      .ticket-firma { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #aaa; }
+      .ticket-firma .firma-linea { text-align: center; flex: 1; }
+      .ticket-firma .firma-linea .linea { border-top: 1px solid #333; width: 80%; margin: 6px auto 2px; }
+      .ticket-footer { text-align: center; font-size: 8px; color: #666; margin-top: 8px; border-top: 1px dashed #aaa; padding-top: 8px; }
+    </style>
+    </head><body>
+    <div class="ticket">${content}</div>
+    <p style="text-align:center; font-size:10px; color:#999; margin-top:12px;">Municipalidad de Las Condes · GRRD</p>
+    <script>
+      window.onload = function() { window.print(); }
+    <\/script>
+    </body></html>
+  `);
+  ventana.document.close();
+}
+
+function descargarPDFComprobante() {
+  if (!ultimoComprobante) { mostrarToast('❌ No hay comprobante'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: [80, 120], orientation: 'portrait' });
+  const s = ultimoComprobante;
+  const num = String(salidas.indexOf(s) + 1).padStart(4, '0');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('MUNICIPALIDAD DE LAS CONDES', 40, 10, { align: 'center' });
+  doc.setFontSize(6);
+  doc.text('Depto. Gestión de Riesgos y Desastres', 40, 14, { align: 'center' });
+  doc.setFontSize(8);
+  doc.text('COMPROBANTE DE SALIDA N° ' + num, 40, 20, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  let y = 28;
+  const lines = [
+    ['Fecha', s.fecha],
+    ['Producto', s.productoNombre + (s.talla ? ' (' + s.talla + ')' : '')],
+    ['Cantidad', `${s.cantidad} ${s.unidad}(s)`],
+    ['Destino', s.destino],
+    ['Entregado por', s.responsable || 'Personal GRRD']
+  ];
+  if (s.observacion) lines.push(['Observación', s.observacion]);
+
+  lines.forEach(([label, value]) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(label + ':', 8, y);
+    doc.setFont('helvetica', 'normal');
+    const v = value.length > 25 ? value.substring(0, 24) + '…' : value;
+    doc.text(v, 35, y);
+    y += 6;
+  });
+
+  y += 4;
+  doc.line(8, y, 72, y);
+  y += 3;
+  doc.setFontSize(6);
+  doc.text('Entregado por', 20, y);
+  doc.text('Recibido por', 50, y);
+  y += 4;
+  doc.line(12, y, 30, y);
+  doc.line(42, y, 60, y);
+
+  y += 6;
+  doc.setFontSize(5);
+  doc.text('Este comprobante es de carácter informativo', 40, y, { align: 'center' });
+
+  doc.save(`Comprobante_Salida_${s.id}.pdf`);
+  mostrarToast('✅ PDF descargado');
+}
+
+// ==================== DASHBOARD ====================
+function actualizarDashboard() {
+  const hoy = salidas.filter(s => esHoy(s.fecha));
+  document.getElementById('res-salidas-hoy').textContent = hoy.length;
+  document.getElementById('res-unidades-hoy').textContent = hoy.reduce((a, s) => a + s.cantidad, 0);
+
+  const productosHoy = new Set(hoy.map(s => s.productoId));
+  document.getElementById('res-productos-unicos').textContent = productosHoy.size;
+
+  const container = document.getElementById('lista-salidas');
+  if (salidas.length === 0) {
+    container.innerHTML = '<div class="empty-state">No hay salidas registradas aún</div>';
+  } else {
+    container.innerHTML = salidas.slice(0, 15).map(s => `
+      <div class="salida-item">
+        <div class="s-icono">⬆️</div>
+        <div class="s-info">
+          <div class="s-nombre">${s.productoNombre}${s.talla ? ' <span class="badge-familia">' + s.talla + '</span>' : ''}</div>
+          <div class="s-meta">📦 ${s.cantidad} ${s.unidad}(s) · 🎯 ${s.destino} · 🕒 ${s.fecha}</div>
+          ${s.observacion ? `<div class="s-meta">📝 ${s.observacion}</div>` : ''}
+        </div>
+        <div class="s-cantidad">-${s.cantidad}</div>
+      </div>
+    `).join('');
+  }
+
+  const top = salidas.reduce((acc, s) => {
+    const key = s.productoId + (s.talla ? '_' + s.talla : '');
+    acc[key] = (acc[key] || 0) + s.cantidad;
+    return acc;
+  }, {});
+  const topArray = Object.entries(top).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const topContainer = document.getElementById('top-productos');
+  if (topArray.length === 0) {
+    topContainer.innerHTML = '<div class="empty-state">Sin datos aún</div>';
+  } else {
+    const max = topArray[0][1] || 1;
+    topContainer.innerHTML = topArray.map(([key, cant], i) => {
+      const [id, talla] = key.split('_');
+      const prod = items.find(p => p.id === id);
+      return `
+        <div class="top-item">
+          <span class="top-pos">#${i+1}</span>
+          <span class="top-nombre">${prod ? prod.nombre : 'Producto eliminado'}${talla ? ' (' + talla + ')' : ''}</span>
+          <div class="top-bar"><div class="top-fill" style="width:${(cant/max)*100}%;"></div></div>
+          <span class="top-cant">${cant}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const criticos = items.filter(i => i.stock <= i.stockMin).slice(0, 5);
+  const critContainer = document.getElementById('stock-critico');
+  if (criticos.length === 0) {
+    critContainer.innerHTML = '<div class="empty-state">✅ Todos los productos con stock adecuado</div>';
+  } else {
+    critContainer.innerHTML = criticos.map(i => `
+      <div class="salida-item" style="border-color:var(--rojo);">
+        <div class="s-icono">⚠️</div>
+        <div class="s-info">
+          <div class="s-nombre" style="color:var(--rojo);">${i.nombre}${i.talla ? ' (' + i.talla + ')' : ''}</div>
+          <div class="s-meta">Stock: ${i.stock} ${i.unidad}(s) · Mínimo: ${i.stockMin}</div>
+        </div>
+        <div class="s-cantidad" style="color:var(--rojo);">${i.stock}</div>
+      </div>
+    `).join('');
+  }
+}
+
+// ==================== INICIALIZACIÓN ====================
+document.addEventListener('DOMContentLoaded', function() {
+  actualizarBadges();
+  poblarDropdownProductos();
+  actualizarDashboard();
+
+  verificarSesion();
+
+  document.getElementById('btn-iniciar-escanner').addEventListener('click', iniciarEscanner);
+
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('visible');
+        if (this.id === 'modal-qr') detenerEscanner();
+      }
+    });
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.custom-dropdown')) {
+      document.querySelectorAll('.dropdown-list').forEach(l => l.style.display = 'none');
+    }
+  });
+});
+
+window.addEventListener('beforeunload', function() {
+  if (scannerIniciado) detenerEscanner();
+});
+</script>
+</body>
+</html>
