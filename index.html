@@ -667,8 +667,8 @@
   <div class="field">
     <label>📂 Familia de productos</label>
     <div class="tabs-familias" id="tabs-familias">
-      <div class="tab-familia active" data-familia="epp_basico" onclick="seleccionarFamilia('epp_basico')">🛡�?EPP Básico</div>
-      <div class="tab-familia" data-familia="epp_climatico" onclick="seleccionarFamilia('epp_climatico')">🌧�?EPP Climático</div>
+      <div class="tab-familia active" data-familia="epp_basico" onclick="seleccionarFamilia('epp_basico')">🛡️ EPP Básico</div>
+      <div class="tab-familia" data-familia="epp_climatico" onclick="seleccionarFamilia('epp_climatico')">🌧️ EPP Climático</div>
       <div class="tab-familia" data-familia="epp_especial" onclick="seleccionarFamilia('epp_especial')">🧥 EPP Especial</div>
       <div class="tab-familia" data-familia="maquinarias" onclick="seleccionarFamilia('maquinarias')">🔧 Maquinarias</div>
       <div class="tab-familia" data-familia="todas" onclick="seleccionarFamilia('todas')">📦 Todas</div>
@@ -721,7 +721,7 @@
       <input type="file" id="foto-input" accept="image/*" capture="environment" multiple onchange="previewFotos()">
       <div style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
         <button type="button" class="btn-camara" onclick="abrirCamara()">📸 Tomar foto con cámara</button>
-        <button type="button" class="btn-camara" style="background:var(--azul);" onclick="abrirGaleria()">🖼�?Elegir de galería</button>
+        <button type="button" class="btn-camara" style="background:var(--azul);" onclick="abrirGaleria()">🖼️ Elegir de galería</button>
       </div>
       <div id="foto-preview" class="foto-preview"></div>
       <div id="foto-placeholder" style="font-size:10px; color:var(--texto-gris); margin-top:6px;">Subir foto(s) del producto o entrega</div>
@@ -729,7 +729,7 @@
   </div>
 
   <div class="btn-fila">
-    <button class="btn-primario" id="btn-registrar" onclick="registrarSalida()">�?Registrar Salida</button>
+    <button class="btn-primario" id="btn-registrar" onclick="registrarSalida()">✅ Registrar Salida</button>
   </div>
   <button class="btn-secundario" onclick="mostrarComprobanteUltima()" style="margin-top:6px;">📋 Ver último comprobante</button>
 </div>
@@ -741,11 +741,11 @@
   <div class="modal">
     <div class="modal-header">
       <h2>🧾 Comprobante de Salida</h2>
-      <button class="btn-cerrar-modal" onclick="cerrarModalComprobante()">�?/button>
+      <button class="btn-cerrar-modal" onclick="cerrarModalComprobante()">✕</button>
     </div>
     <div id="ticket-content" class="ticket"></div>
     <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
-      <button class="btn-primario" style="flex:1;" onclick="imprimirComprobante()">🖨�?Imprimir</button>
+      <button class="btn-primario" style="flex:1;" onclick="imprimirComprobante()">🖨️ Imprimir</button>
       <button class="btn-primario" style="flex:1; background:var(--verde);" onclick="descargarPDFComprobante()">📄 PDF</button>
       <button class="btn-secundario" style="flex:1;" onclick="cerrarModalComprobante()">Cerrar</button>
     </div>
@@ -759,7 +759,7 @@
 // ==================== CONFIGURACIÓN MSAL ====================
 const msalConfig = {
   auth: {
-    clientId: '6df07a31-a9f8-4102-9e07-77266295b619',  // �� TU NUEVO CLIENT ID
+    clientId: '6df07a31-a9f8-4102-9e07-77266295b619',  // ← TU NUEVO CLIENT ID
     authority: 'https://login.microsoftonline.com/3b2a8aaa-7404-4137-8bae-cbd67f7003c2',
     redirectUri: window.location.origin
   },
@@ -801,11 +801,11 @@ async function iniciarSesionMicrosoft() {
       if (validarDominioLasCondes(email)) {
         usuarioDominioValido = true;
         await obtenerToken();
-        mostrarToast(`�?Bienvenido, ${email}`);
+        mostrarToast(`✅ Bienvenido, ${email}`);
         actualizarEstadoSesion(true);
         return usuarioAutenticado;
       } else {
-        mostrarToast(`�?Debes usar una cuenta @lascondes.cl. Usaste: ${email}`);
+        mostrarToast(`❌ Debes usar una cuenta @lascondes.cl. Usaste: ${email}`);
         usuarioDominioValido = false;
         actualizarEstadoSesion(false);
         await cerrarSesionMicrosoft();
@@ -815,7 +815,7 @@ async function iniciarSesionMicrosoft() {
     await msalInstance.loginRedirect({ scopes: ['user.read'] });
     return null;
   } catch (error) {
-    mostrarToast('�?Error al iniciar sesión');
+    mostrarToast('❌ Error al iniciar sesión');
     console.error(error);
     return null;
   }
@@ -842,10 +842,10 @@ async function handleRedirectResponse() {
       if (validarDominioLasCondes(email)) {
         usuarioDominioValido = true;
         await obtenerToken();
-        mostrarToast(`�?Bienvenido, ${email}`);
+        mostrarToast(`✅ Bienvenido, ${email}`);
         actualizarEstadoSesion(true);
       } else {
-        mostrarToast(`�?Cuenta no válida. Debes usar @lascondes.cl`);
+        mostrarToast(`❌ Cuenta no válida. Debes usar @lascondes.cl`);
         usuarioDominioValido = false;
         actualizarEstadoSesion(false);
         await cerrarSesionMicrosoft();
@@ -894,7 +894,7 @@ function actualizarEstadoSesion(autenticado) {
     btn.onclick = cerrarSesionMicrosoft;
     banner.style.display = 'none';
     btnRegistrar.disabled = false;
-    btnRegistrar.textContent = '�?Registrar Salida';
+    btnRegistrar.textContent = '✅ Registrar Salida';
   } else {
     texto.textContent = 'Iniciar sesión';
     dot.className = 'status-dot offline';
@@ -916,7 +916,7 @@ const STORAGE_KEY = 'inv_items_salidas_v5';
 const FAMILIAS = {
   epp_basico: {
     label: 'EPP Básico',
-    icono: '🛡�?,
+    icono: '🛡️',
     orden: 0,
     productos: [
       { nombre: 'Casco de Seguridad', tallas: null },
@@ -930,7 +930,7 @@ const FAMILIAS = {
   },
   epp_climatico: {
     label: 'EPP Climático',
-    icono: '🌧�?,
+    icono: '🌧️',
     orden: 1,
     productos: [
       { nombre: 'Bota de Seguridad', tallas: TALLAS_BOTIN },
@@ -1175,7 +1175,7 @@ function seleccionarTallaProducto(talla, item) {
   });
   
   document.getElementById('talla-seleccionada-info').textContent = 
-    `�?Talla ${talla} seleccionada · Stock: ${item.stock} ${item.unidad}(s)`;
+    `✅ Talla ${talla} seleccionada · Stock: ${item.stock} ${item.unidad}(s)`;
   document.getElementById('salida-cantidad').max = item.stock;
   document.getElementById('salida-cantidad').value = '';
   document.getElementById('salida-unidad').value = item.unidad || 'Unidad';
@@ -1272,7 +1272,7 @@ function previewFotos() {
         img.src = e.target.result;
         div.appendChild(img);
         const btn = document.createElement('button');
-        btn.textContent = '�?;
+        btn.textContent = '✕';
         btn.onclick = function() {
           const dt = new DataTransfer();
           const remaining = Array.from(input.files).filter((f, i) => i !== index);
@@ -1320,7 +1320,7 @@ function comprimirImagen(file, calidad = 0.7, maxWidth = 800) {
 // ==================== REGISTRAR SALIDA ====================
 async function registrarSalida() {
   if (!usuarioAutenticado || !usuarioDominioValido) {
-    mostrarToast('�?Debes iniciar sesión con @lascondes.cl para registrar salidas');
+    mostrarToast('❌ Debes iniciar sesión con @lascondes.cl para registrar salidas');
     return;
   }
 
@@ -1330,9 +1330,9 @@ async function registrarSalida() {
   const obs = document.getElementById('salida-obs').value.trim();
   const fotoInput = document.getElementById('foto-input');
 
-  if (!productoBase) { mostrarToast('�?Seleccione un producto'); return; }
-  if (isNaN(cantidad) || cantidad <= 0) { mostrarToast('�?Ingrese una cantidad válida'); return; }
-  if (!destino) { mostrarToast('�?Indique el destino o quien recibe'); return; }
+  if (!productoBase) { mostrarToast('❌ Seleccione un producto'); return; }
+  if (isNaN(cantidad) || cantidad <= 0) { mostrarToast('❌ Ingrese una cantidad válida'); return; }
+  if (!destino) { mostrarToast('❌ Indique el destino o quien recibe'); return; }
 
   let productoStock = null;
   let tallaUsada = null;
@@ -1343,7 +1343,7 @@ async function registrarSalida() {
 
   if (tieneTallas) {
     if (!tallaSeleccionada) {
-      mostrarToast('�?Seleccione una talla');
+      mostrarToast('❌ Seleccione una talla');
       return;
     }
     tallaUsada = tallaSeleccionada;
@@ -1353,11 +1353,11 @@ async function registrarSalida() {
       i.familia === productoBase.familia
     );
     if (!productoStock) {
-      mostrarToast('�?No hay stock para esta talla');
+      mostrarToast('❌ No hay stock para esta talla');
       return;
     }
     if (cantidad > productoStock.stock) {
-      mostrarToast(`�?Stock insuficiente para talla ${tallaSeleccionada}. Disponible: ${productoStock.stock}`);
+      mostrarToast(`❌ Stock insuficiente para talla ${tallaSeleccionada}. Disponible: ${productoStock.stock}`);
       return;
     }
     productoStock.stock -= cantidad;
@@ -1365,11 +1365,11 @@ async function registrarSalida() {
     // Sin tallas
     productoStock = itemsProducto[0];
     if (!productoStock) {
-      mostrarToast('�?Producto no encontrado');
+      mostrarToast('❌ Producto no encontrado');
       return;
     }
     if (cantidad > productoStock.stock) {
-      mostrarToast(`�?Stock insuficiente. Disponible: ${productoStock.stock}`);
+      mostrarToast(`❌ Stock insuficiente. Disponible: ${productoStock.stock}`);
       return;
     }
     productoStock.stock -= cantidad;
@@ -1413,7 +1413,7 @@ async function registrarSalida() {
   document.getElementById('foto-preview').innerHTML = '';
   document.getElementById('foto-placeholder').style.display = 'block';
 
-  mostrarToast(`�?Salida registrada: ${cantidad} ${salida.unidad}(s) de ${productoBase.nombre}${tallaUsada ? ' (talla ' + tallaUsada + ')' : ''}`);
+  mostrarToast(`✅ Salida registrada: ${cantidad} ${salida.unidad}(s) de ${productoBase.nombre}${tallaUsada ? ' (talla ' + tallaUsada + ')' : ''}`);
 
   actualizarDashboard();
   poblarDropdownProductos();
@@ -1433,7 +1433,7 @@ function mostrarComprobante(salida) {
 
   content.innerHTML = `
     <div class="ticket-header">
-      <h3>🏛�?MUNICIPALIDAD DE LAS CONDES</h3>
+      <h3>🏛️ MUNICIPALIDAD DE LAS CONDES</h3>
       <div style="font-size:9px;">Depto. Gestión de Riesgos y Desastres</div>
       <div style="font-weight:700; font-size:14px; margin-top:4px;">COMPROBANTE DE SALIDA N° ${numTicket}</div>
     </div>
@@ -1467,7 +1467,7 @@ function mostrarComprobante(salida) {
 function mostrarComprobanteUltima() {
   if (!ultimoComprobante) {
     if (salidas.length === 0) {
-      mostrarToast('�?No hay salidas registradas');
+      mostrarToast('❌ No hay salidas registradas');
       return;
     }
     ultimoComprobante = salidas[0];
@@ -1509,7 +1509,7 @@ function imprimirComprobante() {
 }
 
 function descargarPDFComprobante() {
-  if (!ultimoComprobante) { mostrarToast('�?No hay comprobante'); return; }
+  if (!ultimoComprobante) { mostrarToast('❌ No hay comprobante'); return; }
   
   const { jsPDF } = window.jspdf;
   const s = ultimoComprobante;
@@ -1549,7 +1549,7 @@ function descargarPDFComprobante() {
     doc.setFont('helvetica', 'bold');
     doc.text(label + ':', margin, y);
     doc.setFont('helvetica', 'normal');
-    const v = value.length > 40 ? value.substring(0, 39) + '�? : value;
+    const v = value.length > 40 ? value.substring(0, 39) + '…' : value;
     doc.text(v, margin + 35, y);
     y += 7;
   });
@@ -1613,7 +1613,7 @@ function descargarPDFComprobante() {
   }
 
   doc.save(`Comprobante_Salida_${s.id}.pdf`);
-  mostrarToast('�?PDF con fotos descargado');
+  mostrarToast('✅ PDF con fotos descargado');
 }
 
 // ==================== DASHBOARD ====================
