@@ -93,7 +93,7 @@
     font-size: 10px;
     font-family: 'Inter', sans-serif;
     white-space: nowrap;
-    max-width: 140px;
+    max-width: 160px;
     overflow: hidden;
     text-overflow: ellipsis;
     transition: 0.2s;
@@ -107,10 +107,10 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #4ade80;
+    background: #f87171;
     margin-right: 4px;
   }
-  .btn-sesion .status-dot.offline { background: #f87171; }
+  .btn-sesion .status-dot.online { background: #4ade80; }
 
   .section {
     background: var(--blanco);
@@ -494,26 +494,6 @@
     font-weight: 600;
   }
 
-  .login-banner {
-    background: #fef9e7;
-    border: 1px solid #f1c40f;
-    border-radius: 12px;
-    padding: 10px 14px;
-    margin-bottom: 12px;
-    font-size: 11px;
-    color: #7d6608;
-    display: none;
-    align-items: center;
-    gap: 8px;
-  }
-  .login-banner .icono { font-size: 18px; }
-  .login-banner .accion {
-    color: var(--azul);
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-
   .empty-state { text-align: center; color: var(--texto-gris); font-size: 12px; padding: 20px 0; }
 
   .foto-upload {
@@ -634,18 +614,9 @@
     </div>
     <div class="header-titulo">🚚 SALIDA DE PRODUCTOS</div>
     <button id="btn-sesion" class="btn-sesion">
-      <span class="status-dot offline" id="status-dot"></span>
+      <span class="status-dot" id="status-dot"></span>
       <span id="btn-sesion-texto">Iniciar sesión</span>
     </button>
-  </div>
-</div>
-
-<!-- BANNER LOGIN -->
-<div class="section" id="banner-login" style="display:none;">
-  <div class="login-banner" id="login-banner" style="display:flex;">
-    <span class="icono">🔐</span>
-    <span>Para registrar salidas, debes iniciar sesión con tu cuenta <strong>@lascondes.cl</strong>. 
-    <span class="accion" onclick="iniciarSesionMicrosoft()">Haz clic aquí para iniciar sesión</span></span>
   </div>
 </div>
 
@@ -729,7 +700,7 @@
   </div>
 
   <div class="btn-fila">
-    <button class="btn-primario" id="btn-registrar" onclick="registrarSalida()">✅ Registrar Salida</button>
+    <button class="btn-primario" id="btn-registrar" onclick="registrarSalida()" disabled>🔒 Inicia sesión para registrar</button>
   </div>
   <button class="btn-secundario" onclick="mostrarComprobanteUltima()" style="margin-top:6px;">📋 Ver último comprobante</button>
 </div>
@@ -759,7 +730,7 @@
 // ==================== CONFIGURACIÓN MSAL ====================
 const msalConfig = {
   auth: {
-    clientId: '6df07a31-a9f8-4102-9e07-77266295b619',  // ← TU NUEVO CLIENT ID
+    clientId: '6df07a31-a9f8-4102-9e07-77266295b619',
     authority: 'https://login.microsoftonline.com/3b2a8aaa-7404-4137-8bae-cbd67f7003c2',
     redirectUri: window.location.origin
   },
@@ -882,36 +853,40 @@ function actualizarEstadoSesion(autenticado) {
   const btn = document.getElementById('btn-sesion');
   const texto = document.getElementById('btn-sesion-texto');
   const dot = document.getElementById('status-dot');
-  const banner = document.getElementById('banner-login');
   const btnRegistrar = document.getElementById('btn-registrar');
 
   if (autenticado && usuarioDominioValido && usuarioAutenticado) {
     const email = usuarioAutenticado.username;
     const nombre = email.split('@')[0];
     texto.textContent = `👤 ${nombre}`;
-    dot.className = 'status-dot';
+    dot.className = 'status-dot online';
     btn.title = 'Cerrar sesión';
     btn.onclick = cerrarSesionMicrosoft;
-    banner.style.display = 'none';
     btnRegistrar.disabled = false;
     btnRegistrar.textContent = '✅ Registrar Salida';
   } else {
     texto.textContent = 'Iniciar sesión';
-    dot.className = 'status-dot offline';
+    dot.className = 'status-dot';
     btn.title = 'Iniciar sesión con cuenta @lascondes.cl';
     btn.onclick = iniciarSesionMicrosoft;
-    banner.style.display = 'block';
     btnRegistrar.disabled = true;
     btnRegistrar.textContent = '🔒 Inicia sesión para registrar';
   }
+}
+
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => t.classList.remove('show'), 4000);
 }
 
 // ==================== CONFIGURACIÓN DE PRODUCTOS ====================
 const TALLAS_BOTIN = ['40', '41', '42', '43', '44', '45'];
 const TALLAS_ZAPATO = ['40', '41', '42', '43', '44', '45'];
 
-// FORZAR RECARGA DE DATOS - Cambia la clave para regenerar
-const STORAGE_KEY = 'inv_items_salidas_v5';
+const STORAGE_KEY = 'inv_items_salidas_v6';
 
 const FAMILIAS = {
   epp_basico: {
@@ -1033,11 +1008,13 @@ function generarItemsIniciales() {
   return nuevos;
 }
 
-// SIEMPRE regenerar los items para asegurar que estén todos
-items = generarItemsIniciales();
-localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+// Regenerar los items para asegurar que estén todos
+if (!items || items.length === 0) {
+  items = generarItemsIniciales();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
 
-let salidas = JSON.parse(localStorage.getItem('salidas_registradas_v5') || '[]');
+let salidas = JSON.parse(localStorage.getItem('salidas_registradas_v6') || '[]');
 let productoSeleccionadoId = null;
 let tallaSeleccionada = null;
 let ultimoComprobante = null;
@@ -1066,15 +1043,7 @@ function esHoy(fechaStr) {
 
 function guardarStorage() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  localStorage.setItem('salidas_registradas_v5', JSON.stringify(salidas));
-}
-
-function mostrarToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._timeout);
-  t._timeout = setTimeout(() => t.classList.remove('show'), 4000);
+  localStorage.setItem('salidas_registradas_v6', JSON.stringify(salidas));
 }
 
 // ==================== FAMILIAS ====================
