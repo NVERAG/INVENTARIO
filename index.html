@@ -195,7 +195,6 @@
 
   .field { margin-bottom: 12px; }
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 
   .btn-primario {
     background: var(--azul);
@@ -485,7 +484,6 @@
     .logo-texto { font-size: 8px; }
     .resumen-grid { grid-template-columns: 1fr 1fr 1fr; }
     .row-2 { grid-template-columns: 1fr; }
-    .row-3 { grid-template-columns: 1fr; }
     .section { margin: 8px 10px; padding: 12px; }
     .ticket { font-size: 10px; }
     .btn-sesion { max-width: 100px; font-size: 8px; padding: 3px 8px; }
@@ -998,7 +996,6 @@ function agregarReceptor() {
   receptoresAgregados.push({ nombre, email });
   renderReceptores();
 
-  // Limpiar campos
   document.getElementById('receptor-nombre').value = '';
   document.getElementById('receptor-email').value = '';
   document.getElementById('receptor-nombre').focus();
@@ -1317,8 +1314,13 @@ async function registrarSalida() {
   document.getElementById('foto-input').value = '';
   document.getElementById('foto-preview').innerHTML = '';
   document.getElementById('foto-placeholder').style.display = 'block';
+  
+  const receptoresCopia = [...receptoresAgregados];
   receptoresAgregados = [];
   renderReceptores();
+
+  // Mostrar comprobante
+  mostrarComprobante(salida);
 
   // Enviar correo a todos los receptores
   enviarCorreoComprobante(salida);
@@ -1327,23 +1329,29 @@ async function registrarSalida() {
 
   actualizarDashboard();
   poblarDropdownProductos();
-  mostrarComprobante(ultimoComprobante);
 }
 
 // ==================== ENVÍO DE CORREO ====================
 function enviarCorreoComprobante(salida) {
-  // EmailJS - Configuración (debes registrarte en emailjs.com)
-  // emailjs.init('TU_PUBLIC_KEY');
+  // Inicializar EmailJS con tu Public Key
+  emailjs.init('tJ1jLx0YD2ifJfsW-');
   
   const numTicket = String(salidas.length).padStart(4, '0');
   const receptores = salida.receptores || [];
   
-  receptores.forEach(receptor => {
+  if (receptores.length === 0) {
+    mostrarToast('⚠️ No hay receptores para enviar correo');
+    return;
+  }
+  
+  let enviados = 0;
+  let errores = 0;
+  
+  receptores.forEach((receptor) => {
     const templateParams = {
       to_email: receptor.email,
       to_name: receptor.nombre,
       from_name: salida.responsableNombre || 'Personal GRRD',
-      from_email: salida.responsable || 'personal@lascondes.cl',
       producto: salida.productoNombre + (salida.talla ? ' (' + salida.talla + ')' : ''),
       cantidad: salida.cantidad + ' ' + salida.unidad + '(s)',
       observacion: salida.observacion || 'Ninguna',
@@ -1351,14 +1359,18 @@ function enviarCorreoComprobante(salida) {
       numero: numTicket
     };
     
-    console.log('📧 Enviando correo a:', receptor.email, templateParams);
-    // Descomentar cuando tengas EmailJS configurado
-    // emailjs.send('service_id', 'template_id', templateParams)
-    //   .then(() => mostrarToast('✅ Correo enviado a ' + receptor.email))
-    //   .catch(() => mostrarToast('⚠️ No se pudo enviar correo a ' + receptor.email));
+    // Enviar correo con EmailJS
+    emailjs.send('service_snitcew', 'template_x195qwc', templateParams)
+      .then(() => {
+        enviados++;
+        mostrarToast(`✅ Correo enviado a ${receptor.nombre} (${receptor.email})`);
+      })
+      .catch((error) => {
+        errores++;
+        console.error('Error al enviar correo a', receptor.email, error);
+        mostrarToast(`⚠️ No se pudo enviar correo a ${receptor.nombre}`);
+      });
   });
-  
-  mostrarToast(`📧 Correos enviados a ${receptores.length} receptor(es)`);
 }
 
 // ==================== COMPROBANTE ====================
