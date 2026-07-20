@@ -195,6 +195,7 @@
 
   .field { margin-bottom: 12px; }
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 
   .btn-primario {
     background: var(--azul);
@@ -437,6 +438,19 @@
   .btn-camara { background: var(--verde); color: white; border: none; border-radius: 30px; padding: 8px 16px; font-weight: 600; font-size: 12px; cursor: pointer; margin-top: 6px; display: inline-flex; align-items: center; gap: 6px; }
   .btn-camara:hover { opacity: 0.85; }
 
+  .receptor-card {
+    background: #f8fafc;
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .receptor-card .btn-eliminar { position: absolute; top: 6px; right: 8px; background: none; border: none; color: var(--rojo); cursor: pointer; font-size: 14px; font-weight: 700; }
+  .receptor-card .btn-eliminar:hover { opacity: 0.7; }
+  .receptor-card .receptor-nombre { font-weight: 600; font-size: 13px; }
+  .receptor-card .receptor-email { font-size: 11px; color: var(--texto-gris); }
+
   .btn-agregar-receptor {
     background: transparent;
     border: 1.5px dashed var(--azul);
@@ -453,30 +467,16 @@
   .btn-agregar-receptor:hover { background: rgba(22,100,192,0.05); }
   .btn-agregar-receptor:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  .receptor-card {
-    background: #f8fafc;
-    border: 1px solid var(--borde);
+  .usuario-info {
+    background: #e8f0fe;
     border-radius: 12px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    position: relative;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--azul-claro);
+    display: none;
   }
-  .receptor-card .btn-eliminar { position: absolute; top: 6px; right: 8px; background: none; border: none; color: var(--rojo); cursor: pointer; font-size: 14px; font-weight: 700; }
-  .receptor-card .btn-eliminar:hover { opacity: 0.7; }
-  .receptor-card .receptor-nombre { font-weight: 600; font-size: 13px; }
-  .receptor-card .receptor-email { font-size: 11px; color: var(--texto-gris); }
-
-  .select-receptor {
-    width: 100%;
-    padding: 9px 12px;
-    border-radius: 12px;
-    border: 1.5px solid var(--borde);
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    background: white;
-    cursor: pointer;
-  }
-  .select-receptor:focus { border-color: var(--azul); box-shadow: 0 0 0 3px rgba(22,100,192,0.12); outline: none; }
+  .usuario-info .label { font-size: 10px; color: var(--texto-gris); text-transform: uppercase; letter-spacing: 0.5px; }
+  .usuario-info .valor { font-weight: 600; font-size: 14px; color: var(--azul); }
 
   footer { text-align: center; color: var(--texto-gris); font-size: 9px; padding: 16px 16px 30px; opacity: 0.7; }
 
@@ -485,6 +485,7 @@
     .logo-texto { font-size: 8px; }
     .resumen-grid { grid-template-columns: 1fr 1fr 1fr; }
     .row-2 { grid-template-columns: 1fr; }
+    .row-3 { grid-template-columns: 1fr; }
     .section { margin: 8px 10px; padding: 12px; }
     .ticket { font-size: 10px; }
     .btn-sesion { max-width: 100px; font-size: 8px; padding: 3px 8px; }
@@ -533,6 +534,13 @@
 <div class="section">
   <div class="section-label">⬆️ Nueva Salida</div>
 
+  <!-- USUARIO QUE ENTREGA (tomado de Azure) -->
+  <div id="usuario-info" class="usuario-info">
+    <div class="label">👤 Entregado por</div>
+    <div class="valor" id="usuario-nombre">--</div>
+    <div style="font-size:11px; color:var(--texto-gris);" id="usuario-email">--</div>
+  </div>
+
   <!-- TABS FAMILIAS -->
   <div class="field">
     <label>📂 Familia de productos</label>
@@ -574,19 +582,27 @@
     </div>
   </div>
 
-  <!-- RECEPTORES (hasta 10 personas de la lista) -->
+  <!-- RECEPTORES - Nombre y Correo manual -->
   <div class="field">
     <label class="required">Persona que recibe</label>
-    <select class="select-receptor" id="select-receptor">
-      <option value="">-- Seleccionar persona --</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <label>Receptores agregados</label>
-    <div id="receptores-container"></div>
+    <div class="row-2">
+      <div class="field" style="margin-bottom:0;">
+        <label>Nombre completo</label>
+        <input type="text" id="receptor-nombre" placeholder="Ej: Juan Pérez">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Correo electrónico</label>
+        <input type="email" id="receptor-email" placeholder="Ej: juan@lascondes.cl">
+      </div>
+    </div>
     <button class="btn-agregar-receptor" id="btn-agregar-receptor" onclick="agregarReceptor()">+ Agregar receptor</button>
     <div id="receptor-error" style="color:var(--rojo); font-size:11px; margin-top:4px; display:none;"></div>
+  </div>
+
+  <!-- Lista de receptores agregados -->
+  <div class="field">
+    <label>Receptores agregados (<span id="receptor-count">0</span>/10)</label>
+    <div id="receptores-container"></div>
   </div>
 
   <div class="field">
@@ -636,20 +652,6 @@
 <div id="toast"></div>
 
 <script>
-// ==================== LISTA DE PERSONAS ====================
-const PERSONAS = [
-  { nombre: 'Cristóbal Goñi Espíldora', rut: '10217351-1', email: 'cgoni@lascondes.cl' },
-  { nombre: 'Pablo Delannoy Gómez', rut: '10691380-3', email: 'pdelannoy@lascondes.cl' },
-  { nombre: 'Rodrigo Arriagada Faúndez', rut: '13687972-3', email: 'rodrigo.arriagada@lascondes.cl' },
-  { nombre: 'Daniel Troncoso Mercado', rut: '20054350-5', email: 'dtroncoso@lascondes.cl' },
-  { nombre: 'Hector Vasquez Beltran', rut: '12267007-4', email: 'hvasquez@lascondes.cl' },
-  { nombre: 'Juan Abarca Campos', rut: '13839192-2', email: 'jabarca@lascondes.cl' },
-  { nombre: 'Jose Arriagada Bravo', rut: '15928879-k', email: 'jarriagada@lascondes.cl' },
-  { nombre: 'Ignacio Lagos Contreras', rut: '18033098-4', email: 'ilagos@lascondes.cl' },
-  { nombre: 'Emilio Fuentes Vásquez', rut: '17961727-7', email: 'efuentes@lascondes.cl' },
-  { nombre: 'Simon Oyarzún Oyarzún', rut: '15603053-8', email: 'soyarzun@lascondes.cl' }
-];
-
 // ==================== CONFIGURACIÓN MSAL ====================
 const msalConfig = {
   auth: {
@@ -762,6 +764,9 @@ function actualizarEstadoSesion(autenticado) {
   const texto = document.getElementById('btn-sesion-texto');
   const dot = document.getElementById('status-dot');
   const btnRegistrar = document.getElementById('btn-registrar');
+  const usuarioInfo = document.getElementById('usuario-info');
+  const usuarioNombre = document.getElementById('usuario-nombre');
+  const usuarioEmail = document.getElementById('usuario-email');
 
   if (autenticado && usuarioDominioValido && usuarioAutenticado) {
     const email = usuarioAutenticado.username;
@@ -772,6 +777,11 @@ function actualizarEstadoSesion(autenticado) {
     btn.onclick = cerrarSesionMicrosoft;
     btnRegistrar.disabled = false;
     btnRegistrar.textContent = '✅ Registrar Salida';
+    
+    // Mostrar información del usuario que entrega
+    usuarioInfo.style.display = 'block';
+    usuarioNombre.textContent = nombre;
+    usuarioEmail.textContent = email;
   } else {
     texto.textContent = 'Iniciar sesión';
     dot.className = 'status-dot';
@@ -779,6 +789,7 @@ function actualizarEstadoSesion(autenticado) {
     btn.onclick = iniciarSesionMicrosoft;
     btnRegistrar.disabled = true;
     btnRegistrar.textContent = '🔒 Inicia sesión para registrar';
+    usuarioInfo.style.display = 'none';
   }
 }
 
@@ -794,7 +805,7 @@ function mostrarToast(msg) {
 const TALLAS_BOTIN = ['40', '41', '42', '43', '44', '45'];
 const TALLAS_ZAPATO = ['40', '41', '42', '43', '44', '45'];
 
-const STORAGE_KEY = 'inv_items_salidas_v6';
+const STORAGE_KEY = 'inv_items_salidas_v7';
 
 const FAMILIAS = {
   epp_basico: {
@@ -915,7 +926,7 @@ if (!items || items.length === 0) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
-let salidas = JSON.parse(localStorage.getItem('salidas_registradas_v6') || '[]');
+let salidas = JSON.parse(localStorage.getItem('salidas_registradas_v7') || '[]');
 let productoSeleccionadoId = null;
 let tallaSeleccionada = null;
 let ultimoComprobante = null;
@@ -944,49 +955,53 @@ function esHoy(fechaStr) {
 
 function guardarStorage() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  localStorage.setItem('salidas_registradas_v6', JSON.stringify(salidas));
+  localStorage.setItem('salidas_registradas_v7', JSON.stringify(salidas));
 }
 
 // ==================== RECEPTORES ====================
-function cargarSelectPersonas() {
-  const select = document.getElementById('select-receptor');
-  select.innerHTML = '<option value="">-- Seleccionar persona --</option>';
-  PERSONAS.forEach(p => {
-    const option = document.createElement('option');
-    option.value = p.email;
-    option.textContent = `${p.nombre} (${p.email})`;
-    select.appendChild(option);
-  });
-}
-
 function agregarReceptor() {
-  const select = document.getElementById('select-receptor');
+  const nombre = document.getElementById('receptor-nombre').value.trim();
+  const email = document.getElementById('receptor-email').value.trim();
   const error = document.getElementById('receptor-error');
-  const email = select.value;
-  
+
+  if (!nombre) {
+    error.textContent = '⚠️ Ingresa el nombre completo';
+    error.style.display = 'block';
+    return;
+  }
+
   if (!email) {
-    error.textContent = '⚠️ Selecciona una persona de la lista';
+    error.textContent = '⚠️ Ingresa el correo electrónico';
     error.style.display = 'block';
     return;
   }
-  
-  error.style.display = 'none';
-  
-  // Verificar si ya está agregado
+
+  if (!email.includes('@')) {
+    error.textContent = '⚠️ Correo electrónico no válido';
+    error.style.display = 'block';
+    return;
+  }
+
+  if (receptoresAgregados.length >= 10) {
+    error.textContent = '⚠️ Máximo 10 receptores permitidos';
+    error.style.display = 'block';
+    return;
+  }
+
   if (receptoresAgregados.some(r => r.email === email)) {
-    error.textContent = '⚠️ Esta persona ya está agregada';
+    error.textContent = '⚠️ Este correo ya está agregado';
     error.style.display = 'block';
     return;
   }
-  
-  const persona = PERSONAS.find(p => p.email === email);
-  if (!persona) return;
-  
-  receptoresAgregados.push(persona);
+
+  error.style.display = 'none';
+  receptoresAgregados.push({ nombre, email });
   renderReceptores();
-  
-  // Resetear select
-  select.value = '';
+
+  // Limpiar campos
+  document.getElementById('receptor-nombre').value = '';
+  document.getElementById('receptor-email').value = '';
+  document.getElementById('receptor-nombre').focus();
 }
 
 function eliminarReceptor(email) {
@@ -996,15 +1011,18 @@ function eliminarReceptor(email) {
 
 function renderReceptores() {
   const container = document.getElementById('receptores-container');
+  const count = document.getElementById('receptor-count');
   const btn = document.getElementById('btn-agregar-receptor');
-  
+
+  count.textContent = receptoresAgregados.length;
+
   if (receptoresAgregados.length === 0) {
     container.innerHTML = '<div class="empty-state">No hay receptores agregados</div>';
     btn.disabled = false;
     btn.textContent = '+ Agregar receptor';
     return;
   }
-  
+
   container.innerHTML = receptoresAgregados.map(p => `
     <div class="receptor-card">
       <button class="btn-eliminar" onclick="eliminarReceptor('${p.email}')">✕</button>
@@ -1012,7 +1030,7 @@ function renderReceptores() {
       <div class="receptor-email">${p.email}</div>
     </div>
   `).join('');
-  
+
   if (receptoresAgregados.length >= 10) {
     btn.disabled = true;
     btn.textContent = '🔒 Máximo 10 receptores';
@@ -1054,7 +1072,7 @@ function mostrarProductoSeleccionado(producto) {
   container.style.display = 'block';
   const itemsProducto = items.filter(i => i.nombre === producto.nombre && i.familia === producto.familia);
   const tieneTallas = itemsProducto.some(i => i.tieneTalla);
-  
+
   if (tieneTallas && itemsProducto.length > 0) {
     selectorContainer.style.display = 'block';
     selector.innerHTML = '';
@@ -1283,6 +1301,7 @@ async function registrarSalida() {
     receptores: receptoresAgregados.map(r => ({ nombre: r.nombre, email: r.email })),
     observacion: obs,
     responsable: usuarioAutenticado ? usuarioAutenticado.username : 'Personal GRRD',
+    responsableNombre: usuarioAutenticado ? usuarioAutenticado.username.split('@')[0] : 'Personal GRRD',
     fecha: fechaHoraActual(),
     timestamp: Date.now(),
     fotos: fotosData
@@ -1323,7 +1342,8 @@ function enviarCorreoComprobante(salida) {
     const templateParams = {
       to_email: receptor.email,
       to_name: receptor.nombre,
-      from_name: salida.responsable || 'Personal GRRD',
+      from_name: salida.responsableNombre || 'Personal GRRD',
+      from_email: salida.responsable || 'personal@lascondes.cl',
       producto: salida.productoNombre + (salida.talla ? ' (' + salida.talla + ')' : ''),
       cantidad: salida.cantidad + ' ' + salida.unidad + '(s)',
       observacion: salida.observacion || 'Ninguna',
@@ -1331,7 +1351,7 @@ function enviarCorreoComprobante(salida) {
       numero: numTicket
     };
     
-    console.log('Enviando correo a:', receptor.email, templateParams);
+    console.log('📧 Enviando correo a:', receptor.email, templateParams);
     // Descomentar cuando tengas EmailJS configurado
     // emailjs.send('service_id', 'template_id', templateParams)
     //   .then(() => mostrarToast('✅ Correo enviado a ' + receptor.email))
@@ -1346,7 +1366,7 @@ function mostrarComprobante(salida) {
   const modal = document.getElementById('modal-comprobante');
   const content = document.getElementById('ticket-content');
   const numTicket = String(salidas.length).padStart(4, '0');
-  const receptoresText = salida.receptores ? salida.receptores.map(r => r.nombre).join(', ') : 'No especificado';
+  const receptoresText = salida.receptores ? salida.receptores.map(r => r.nombre + ' (' + r.email + ')').join(', ') : 'No especificado';
   
   let fotosHTML = '';
   if (salida.fotos && salida.fotos.length > 0) {
@@ -1441,7 +1461,7 @@ function descargarPDFComprobante() {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   let y = 38;
-  const receptoresText = s.receptores ? s.receptores.map(r => r.nombre).join(', ') : 'No especificado';
+  const receptoresText = s.receptores ? s.receptores.map(r => r.nombre + ' (' + r.email + ')').join(', ') : 'No especificado';
   const lines = [
     ['Fecha', s.fecha],
     ['Producto', s.productoNombre + (s.talla ? ' (' + s.talla + ')' : '')],
@@ -1521,7 +1541,6 @@ function actualizarDashboard() {
 
 // ==================== INICIALIZACIÓN ====================
 document.addEventListener('DOMContentLoaded', function() {
-  cargarSelectPersonas();
   renderReceptores();
   
   document.querySelectorAll('.tab-familia').forEach(tab => {
