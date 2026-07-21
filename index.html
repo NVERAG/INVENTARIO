@@ -776,7 +776,6 @@ function actualizarEstadoSesion(autenticado) {
     btnRegistrar.disabled = false;
     btnRegistrar.textContent = '✅ Registrar Salida';
     
-    // Mostrar información del usuario que entrega
     usuarioInfo.style.display = 'block';
     usuarioNombre.textContent = nombre;
     usuarioEmail.textContent = email;
@@ -803,7 +802,7 @@ function mostrarToast(msg) {
 const TALLAS_BOTIN = ['40', '41', '42', '43', '44', '45'];
 const TALLAS_ZAPATO = ['40', '41', '42', '43', '44', '45'];
 
-const STORAGE_KEY = 'inv_items_salidas_v7';
+const STORAGE_KEY = 'inv_items_salidas_v8';
 
 const FAMILIAS = {
   epp_basico: {
@@ -874,6 +873,9 @@ let items = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
 function generarItemsIniciales() {
   const nuevos = [];
   let idCounter = 0;
+  // Stock inicial en 10 unidades para todos los productos
+  const STOCK_INICIAL = 10;
+  
   Object.entries(FAMILIAS).forEach(([familiaKey, familia]) => {
     familia.productos.forEach(prod => {
       const tieneTalla = prod.tallas && prod.tallas.length > 0;
@@ -888,7 +890,7 @@ function generarItemsIniciales() {
             talla: talla,
             codigo: '',
             unidad: 'Unidad',
-            stock: Math.floor(Math.random() * 8) + 2,
+            stock: STOCK_INICIAL,
             stockMin: 2,
             ubicacion: 'Bodega GRRD',
             estado: 'Operativo',
@@ -906,7 +908,7 @@ function generarItemsIniciales() {
           talla: null,
           codigo: '',
           unidad: 'Unidad',
-          stock: Math.floor(Math.random() * 10) + 3,
+          stock: STOCK_INICIAL,
           stockMin: 2,
           ubicacion: 'Bodega GRRD',
           estado: 'Operativo',
@@ -924,7 +926,7 @@ if (!items || items.length === 0) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
-let salidas = JSON.parse(localStorage.getItem('salidas_registradas_v7') || '[]');
+let salidas = JSON.parse(localStorage.getItem('salidas_registradas_v8') || '[]');
 let productoSeleccionadoId = null;
 let tallaSeleccionada = null;
 let ultimoComprobante = null;
@@ -953,7 +955,7 @@ function esHoy(fechaStr) {
 
 function guardarStorage() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  localStorage.setItem('salidas_registradas_v7', JSON.stringify(salidas));
+  localStorage.setItem('salidas_registradas_v8', JSON.stringify(salidas));
 }
 
 // ==================== RECEPTORES ====================
@@ -1286,6 +1288,10 @@ async function registrarSalida() {
     }
   }
 
+  // Generar número de comprobante con prefijo LC
+  const numComprobante = String(salidas.length + 1).padStart(4, '0');
+  const numeroLC = `LC${numComprobante}`;
+
   const salida = {
     id: generarId(),
     productoId: productoStock.id,
@@ -1301,7 +1307,8 @@ async function registrarSalida() {
     responsableNombre: usuarioAutenticado ? usuarioAutenticado.username.split('@')[0] : 'Personal GRRD',
     fecha: fechaHoraActual(),
     timestamp: Date.now(),
-    fotos: fotosData
+    fotos: fotosData,
+    numeroLC: numeroLC
   };
 
   salidas.unshift(salida);
@@ -1336,16 +1343,13 @@ function enviarCorreoComprobante(salida) {
   // Inicializar EmailJS con tu Public Key
   emailjs.init('tJ1jLx0YD2ifJfsW-');
   
-  const numTicket = String(salidas.length).padStart(4, '0');
+  const numTicket = salida.numeroLC || String(salidas.length).padStart(4, '0');
   const receptores = salida.receptores || [];
   
   if (receptores.length === 0) {
     mostrarToast('⚠️ No hay receptores para enviar correo');
     return;
   }
-  
-  let enviados = 0;
-  let errores = 0;
   
   receptores.forEach((receptor) => {
     const templateParams = {
@@ -1362,11 +1366,9 @@ function enviarCorreoComprobante(salida) {
     // Enviar correo con EmailJS
     emailjs.send('service_snitcew', 'template_x195qwc', templateParams)
       .then(() => {
-        enviados++;
         mostrarToast(`✅ Correo enviado a ${receptor.nombre} (${receptor.email})`);
       })
       .catch((error) => {
-        errores++;
         console.error('Error al enviar correo a', receptor.email, error);
         mostrarToast(`⚠️ No se pudo enviar correo a ${receptor.nombre}`);
       });
@@ -1377,8 +1379,8 @@ function enviarCorreoComprobante(salida) {
 function mostrarComprobante(salida) {
   const modal = document.getElementById('modal-comprobante');
   const content = document.getElementById('ticket-content');
-  const numTicket = String(salidas.length).padStart(4, '0');
-  const receptoresText = salida.receptores ? salida.receptores.map(r => r.nombre + ' (' + r.email + ')').join(', ') : 'No especificado';
+  const numTicket = salida.numeroLC || String(salidas.length).padStart(4, '0');
+  const receptoresText = salida.receptores ? salida.receptores.map(r => r.nombre).join(', ') : 'No especificado';
   
   let fotosHTML = '';
   if (salida.fotos && salida.fotos.length > 0) {
@@ -1396,7 +1398,7 @@ function mostrarComprobante(salida) {
     <div class="ticket-fila"><span class="label">Cantidad</span><span class="valor">${salida.cantidad} ${salida.unidad}(s)</span></div>
     <div class="ticket-fila"><span class="label">Recibe</span><span class="valor">${receptoresText}</span></div>
     ${salida.observacion ? `<div class="ticket-fila"><span class="label">Observación</span><span class="valor">${salida.observacion}</span></div>` : ''}
-    <div class="ticket-fila"><span class="label">Entregado por</span><span class="valor">${salida.responsable || 'Personal GRRD'}</span></div>
+    <div class="ticket-fila"><span class="label">Entregado por</span><span class="valor">${salida.responsableNombre || 'Personal GRRD'}</span></div>
     ${fotosHTML}
     <div class="ticket-firma">
       <div class="firma-linea"><div>Entregado por</div><div class="linea"></div></div>
@@ -1452,7 +1454,7 @@ function descargarPDFComprobante() {
   if (!ultimoComprobante) { mostrarToast('❌ No hay comprobante'); return; }
   const { jsPDF } = window.jspdf;
   const s = ultimoComprobante;
-  const num = String(salidas.indexOf(s) + 1).padStart(4, '0');
+  const num = s.numeroLC || String(salidas.indexOf(s) + 1).padStart(4, '0');
   const totalFotos = (s.fotos && s.fotos.length) || 0;
   const paginasFotos = Math.ceil(totalFotos / 2);
   const totalPaginas = 1 + paginasFotos;
@@ -1473,13 +1475,13 @@ function descargarPDFComprobante() {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   let y = 38;
-  const receptoresText = s.receptores ? s.receptores.map(r => r.nombre + ' (' + r.email + ')').join(', ') : 'No especificado';
+  const receptoresText = s.receptores ? s.receptores.map(r => r.nombre).join(', ') : 'No especificado';
   const lines = [
     ['Fecha', s.fecha],
     ['Producto', s.productoNombre + (s.talla ? ' (' + s.talla + ')' : '')],
     ['Cantidad', `${s.cantidad} ${s.unidad}(s)`],
     ['Recibe', receptoresText],
-    ['Entregado por', s.responsable || 'Personal GRRD']
+    ['Entregado por', s.responsableNombre || 'Personal GRRD']
   ];
   if (s.observacion) lines.push(['Observación', s.observacion]);
 
